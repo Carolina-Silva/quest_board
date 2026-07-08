@@ -1,0 +1,20 @@
+<!-- Tela de Boas-Vindas -->
+<div id="welcome-screen" class="hidden min-h-[90vh] flex flex-col items-center justify-center p-4 relative z-10">
+    <div
+        class="max-w-md w-full bg-slate-950/80 p-8 border border-cyan-500/40 text-center neon-box-cyan backdrop-blur-sm">
+        <h1 class="text-4xl font-mono font-bold text-cyan-400 mb-2 tracking-[0.2em] neon-text-cyan uppercase">Terminal_
+        </h1>
+        <h2 class="text-lg font-mono text-slate-400 mb-8 tracking-widest border-b border-cyan-900/50 pb-2">Equipe de
+            dados</h2>
+        <p class="text-cyan-500/80 mb-6 text-xs font-mono leading-relaxed uppercase">Acesso restrito. Identificação
+            obrigatória para liberação de credenciais operacionais.</p>
+        <div class="space-y-6">
+            <input type="text" id="player-name-input" placeholder="> Insira seu codinome"
+                class="w-full bg-black border border-cyan-800 rounded-none px-4 py-3 text-center text-cyan-300 focus:outline-none focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 font-mono text-sm placeholder-cyan-800/50 transition-all" />
+            <button onclick="acceptMission()"
+                class="w-full bg-cyan-950 border border-cyan-500 text-cyan-400 hover:bg-cyan-500 hover:text-black font-mono font-bold px-4 py-3 transition-all duration-300 shadow-[0_0_10px_rgba(34,211,238,0.2)] hover:shadow-[0_0_20px_rgba(34,211,238,0.6)] uppercase tracking-widest text-sm">
+                Autenticar Agente
+            </button>
+        </div>
+    </div>
+</div>
