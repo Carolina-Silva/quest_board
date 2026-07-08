@@ -13,7 +13,8 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
-DATA_FILE = "quest_data.json"
+os.makedirs("data", exist_ok=True)
+DATA_FILE = "data/quest_data.json"
 
 class DiarioEntry(BaseModel):
     player_name: str
@@ -99,12 +100,12 @@ def get_quests(player_name: str = None):
     if not player_name:
         raise HTTPException(status_code=400, detail="player_name is required")
         
-    player_quests_file = f"quests_{player_name}.json"
+    player_quests_file = f"data/quests_{player_name}.json"
     
     if not os.path.exists(player_quests_file):
-        if not os.path.exists("quests.json"):
+        if not os.path.exists("data/quests.json"):
             raise HTTPException(status_code=404, detail="Base quests.json not found")
-        shutil.copy("quests.json", player_quests_file)
+        shutil.copy("data/quests.json", player_quests_file)
         
     with open(player_quests_file, "r", encoding="utf-8") as f:
         return json.load(f)
