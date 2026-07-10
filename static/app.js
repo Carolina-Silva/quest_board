@@ -17,7 +17,6 @@ function logout() {
     if (welcomeScreen) welcomeScreen.classList.add('hidden');
     if (mainBoard) mainBoard.classList.add('hidden');
     if (adminBoard) adminBoard.classList.add('hidden');
-
     init();
 }
 
@@ -49,7 +48,6 @@ async function init() {
     const res = await fetch(`/api/status?player_name=${encodeURIComponent(playerName)}`);
 
     if (res.status === 404 || res.status === 400) {
-        // Player not found or bad request, reset session
         logout();
         return;
     }
@@ -73,7 +71,7 @@ async function init() {
 async function acceptMission() {
     const name = document.getElementById('player-name-input').value.trim();
     if (!name) {
-        alert('FALHA NA AUTENTICAÇÃO: IDENTIFICAÇÃO NECESSÁRIA.');
+        alert('Por favor, insira seu codinome antes de entrar.');
         return;
     }
 
@@ -90,105 +88,93 @@ async function acceptMission() {
 function renderQuests(data) {
     const currentLevel = data.current_level;
 
-    // Render Main Quests
+    // ── Render Main Quests ──────────────────────────────────────
     const mainContainer = document.getElementById('main-quests-container');
     mainContainer.innerHTML = '';
 
     questsConfig.main_quests.forEach(quest => {
-        let cardClass, badgeClass, badgeText, btnHidden, titleClass;
+        let cardClass, badgeClass, badgeText, titleClass;
 
         if (quest.id < currentLevel) {
-            cardClass = "bg-black/60 p-6 border border-emerald-500/30 opacity-75 relative focus-within:opacity-100 hover:opacity-100 transition-opacity";
-            badgeClass = "text-[10px] font-mono font-bold px-2 py-0.5 bg-emerald-950 text-emerald-400 border border-emerald-500/50 uppercase tracking-widest";
-            badgeText = "VERIFICADO";
-            btnHidden = "";
-            titleClass = "text-lg font-mono font-bold text-emerald-500/80 uppercase tracking-wide";
+            cardClass = 'quest-card quest-card-done';
+            badgeClass = 'quest-badge quest-badge-done';
+            badgeText = 'VERIFICADO ✅';
+            titleClass = 'quest-title-done';
         } else if (quest.id === currentLevel) {
-            cardClass = "bg-slate-950/80 p-6 border border-cyan-500/60 neon-box-cyan transition-all relative";
-            badgeClass = "text-[10px] font-mono font-bold px-2 py-0.5 bg-cyan-950 text-cyan-400 border border-cyan-400 uppercase tracking-widest shadow-[0_0_8px_rgba(34,211,238,0.4)]";
-            badgeText = "EM ANDAMENTO";
-            btnHidden = "";
-            titleClass = "text-lg font-mono font-bold text-cyan-400 uppercase tracking-wide neon-text-cyan";
+            cardClass = 'quest-card quest-card-active';
+            badgeClass = 'quest-badge quest-badge-active';
+            badgeText = 'EM ANDAMENTO ⚡';
+            titleClass = 'quest-title-active';
         } else {
-            cardClass = "bg-black p-6 border border-slate-800 text-slate-600 select-none pointer-events-none relative";
-            badgeClass = "text-[10px] font-mono font-bold px-2 py-0.5 bg-slate-900 text-slate-700 uppercase tracking-widest border border-slate-800";
-            badgeText = "ACESSO NEGADO";
-            btnHidden = "hidden";
-            titleClass = "text-lg font-mono font-bold text-slate-600 uppercase tracking-wide";
+            cardClass = 'quest-card quest-card-locked';
+            badgeClass = 'quest-badge quest-badge-locked';
+            badgeText = 'BLOQUEADA 🔒';
+            titleClass = 'quest-title-locked';
         }
 
-        // Add corner accents for active card
-        let corners = quest.id === currentLevel ? `
-            <div class="absolute top-0 left-0 w-2 h-2 border-t border-l border-cyan-400"></div>
-            <div class="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-cyan-400"></div>
-        ` : '';
+        let corners = quest.id === currentLevel
+            ? `<div class="corner-tl"></div><div class="corner-tr"></div><div class="corner-bl"></div><div class="corner-br"></div>`
+            : '';
 
-        let deliverablesHtml = "";
+        let deliverablesHtml = '';
         if (quest.deliverables && quest.deliverables.length > 0) {
             deliverablesHtml = `
-                <div class="bg-black/50 p-4 text-xs text-cyan-100/70 space-y-2 mb-6 border-l-2 border-cyan-800 font-mono">
-                    <p class="font-bold text-cyan-500 uppercase tracking-wider text-[10px]">> ${quest.deliverables_title || 'Parâmetros de Missão:'}</p>
-                    <ul class="list-disc pl-4 space-y-1.5 marker:text-cyan-800">
-                        ${quest.deliverables.map(d => `<li>${d}</li>`).join('')}
-                    </ul>
+                <div class="quest-deliverables">
+                    <p class="quest-deliverables-title">> ${quest.deliverables_title || 'Parâmetros de Missão:'}</p>
+                    <ul>${quest.deliverables.map(d => `<li>${d}</li>`).join('')}</ul>
                 </div>
             `;
+        }
+
+        // Button
+        let btnHtml = '';
+        if (quest.id !== 0 && quest.id <= currentLevel) {
+            if (quest.id < currentLevel) {
+                btnHtml = `<button onclick="openDiario('${quest.title}', ${quest.id})" class="btn-quest-secondary">Ver meu envio anterior</button>`;
+            } else {
+                btnHtml = `<button onclick="openDiario('${quest.title}', ${quest.id})" class="btn-quest-primary">${quest.btn_text || 'Finalizar e Enviar Log'}</button>`;
+            }
         }
 
         mainContainer.innerHTML += `
             <div class="${cardClass}">
                 ${corners}
-                <div class="flex justify-between items-start mb-4 gap-2">
+                <div class="quest-card-header">
                     <h3 class="${titleClass}">[SEQ_${quest.id}] ${quest.title}</h3>
-                    <span class="${badgeClass} shrink-0 mt-1">${badgeText}</span>
+                    <span class="${badgeClass}">${badgeText}</span>
                 </div>
-                ${quest.id > currentLevel ?
-                `<div class="bg-black/80 border border-red-900/50 p-4 relative overflow-hidden mb-6 filter blur-[1px]">
-                         <p class="text-red-500 font-mono text-center text-xs uppercase tracking-widest animate-pulse">[!] DADOS CRIPTOGRAFADOS - NÍVEL DE ACESSO INSUFICIENTE [!]</p>
-                     </div>`
-                :
-                `<p class="text-sm md:text-base mb-6 font-mono leading-relaxed ${quest.id === currentLevel ? 'text-cyan-100/90' : 'text-slate-500'}">${quest.description}</p>
-                    ${deliverablesHtml}`
+                ${quest.id > currentLevel
+                ? `<div class="quest-locked-blur"><p class="quest-locked-msg">[!] Conclua a missão anterior para desbloquear esta fase 🔒</p></div>`
+                : `<p class="quest-desc ${quest.id === currentLevel ? 'quest-desc-active' : ''}">${quest.description}</p>${deliverablesHtml}`
             }
-                <button onclick="openDiario('${quest.title}', ${quest.id})" class="${btnHidden} w-full md:w-auto ${quest.id < currentLevel ? 'bg-slate-900/40 text-slate-400 border-slate-600 hover:bg-slate-700 hover:text-white' : 'bg-cyan-950 text-cyan-400 border-cyan-500 hover:bg-cyan-500 hover:text-black shadow-[0_0_15px_rgba(34,211,238,0.3)]'} border font-mono text-xs md:text-sm font-bold px-8 py-3 transition-all uppercase tracking-widest">
-                    ${quest.id < currentLevel ? '[VER SEUS DADOS / NOVA VERSÃO]' : (quest.btn_text || 'Finalizar e Enviar Log')}
-                </button>
+                ${btnHtml}
             </div>
         `;
     });
 
-    // Render Side Quests
+    // ── Render Side Quests ──────────────────────────────────────
     const sideContainer = document.getElementById('side-quests-container');
     sideContainer.innerHTML = '';
 
     questsConfig.side_quests.forEach(quest => {
         const isCompleted = data.side_quests_completed.includes(quest.name);
 
-        let cardClass = "bg-slate-950/60 p-5 border border-fuchsia-900/50 hover:border-fuchsia-500/50 transition-all group relative";
-        let badgeClass = "text-[9px] font-mono bg-fuchsia-950/50 text-fuchsia-500 font-bold px-2 py-0.5 border border-fuchsia-900/50 uppercase tracking-widest";
-        let badgeText = "DISPONÍVEL";
-        let btnText = "Extrair Dados";
-        let titleClass = "text-xs font-mono font-bold text-fuchsia-400 uppercase tracking-widest group-hover:neon-text-fuchsia transition-all";
-
-        if (isCompleted) {
-            cardClass = "bg-black/60 p-5 border border-emerald-900/50 opacity-80 relative";
-            badgeClass = "text-[9px] font-mono bg-emerald-950 text-emerald-500 font-bold px-2 py-0.5 border border-emerald-900/50 uppercase tracking-widest";
-            badgeText = "PROCESSADO";
-            btnText = "Re-processar Dados";
-            titleClass = "text-xs font-mono font-bold text-emerald-500/80 uppercase tracking-widest";
-        }
+        const cardClass = isCompleted ? 'side-card side-card-done' : 'side-card';
+        const titleClass = isCompleted ? 'side-card-title side-card-title-done' : 'side-card-title';
+        const badgeClass = isCompleted ? 'side-badge side-badge-done' : 'side-badge side-badge-available';
+        const badgeText = isCompleted ? 'PROCESSADO ✅' : 'DISPONÍVEL';
+        const btnClass = isCompleted ? 'btn-side btn-side-done' : 'btn-side';
+        const btnText = isCompleted ? 'Re-processar Dados' : 'Acessar Missão';
 
         sideContainer.innerHTML += `
             <div class="${cardClass}">
-                <div class="absolute top-0 left-0 w-1 h-full bg-fuchsia-900/30 group-hover:bg-fuchsia-500/50 transition-colors ${isCompleted ? 'bg-emerald-900/50 group-hover:bg-emerald-900/50' : ''}"></div>
-                <div class="flex justify-between items-start mb-3 gap-2 pl-3">
-                    <h3 class="${titleClass}">SYS_OPT: ${quest.name}</h3>
-                    <span class="${badgeClass} mt-0.5 shrink-0">${badgeText}</span>
+                <div class="side-card-accent"></div>
+                <div class="side-card-header">
+                    <h3 class="${titleClass}">${quest.name}</h3>
+                    <span class="${badgeClass}">${badgeText}</span>
                 </div>
-                <p class="text-[11px] font-mono text-slate-400 leading-relaxed mb-4 pl-3 group-hover:text-fuchsia-100/70 transition-colors ${isCompleted ? 'text-slate-600 group-hover:text-slate-500' : ''}">${quest.description}</p>
-                <button onclick="openSideQuest('${quest.name}')" class="w-full ml-3 max-w-[calc(100%-12px)] bg-transparent border border-fuchsia-900/80 hover:border-fuchsia-400 text-fuchsia-500/80 hover:text-fuchsia-300 font-mono text-[10px] font-bold py-1.5 transition-all uppercase tracking-widest hover:shadow-[0_0_8px_rgba(232,121,249,0.3)] ${isCompleted ? 'border-emerald-900/50 text-emerald-600 hover:border-emerald-500 hover:text-emerald-400 hover:shadow-[0_0_8px_rgba(16,185,129,0.3)]' : ''}">
-                    ${btnText}
-                </button>
+                <p class="side-card-desc">${quest.description}</p>
+                <button onclick="openSideQuest('${quest.name}')" class="${btnClass}">${btnText}</button>
             </div>
         `;
     });
@@ -202,62 +188,108 @@ function updateDashboard(data) {
     if (currentLevel === 1) progressPercentage = 15;
     else if (currentLevel === 2) progressPercentage = 50;
     else if (currentLevel === 3) progressPercentage = 85;
-
     if (data.diario_logs.some(l => l.level_name.includes("Level 3"))) progressPercentage = 100;
 
     document.getElementById('progress-bar').style.width = `${progressPercentage}%`;
 
-    // Render Badges
+    // ── Badge Config ────────────────────────────────────────────
+    const BADGE_CONFIG = {
+        'Conheça uma tecnologia nova 📚': {
+            icon: '🔬', title: 'TECH EXPLORER', tagline: 'Mergulhou fundo em uma tecnologia',
+            rarity: 'RARO', colorBorder: '#38bdf8', colorBg: 'rgba(14,165,233,0.12)',
+            colorGlow: '0 0 22px rgba(56,189,248,0.55), inset 0 0 14px rgba(56,189,248,0.12)',
+            colorTitle: '#7dd3fc', colorTagline: '#38bdf870', rarityColor: '#38bdf8', rarityBg: 'rgba(12,74,110,0.7)',
+        },
+        'A Ideia Maluca 💡': {
+            icon: '⚡', title: 'INOVADORA', tagline: 'Propôs uma feature que muda tudo',
+            rarity: 'ÉPICO', colorBorder: '#fbbf24', colorBg: 'rgba(245,158,11,0.12)',
+            colorGlow: '0 0 22px rgba(251,191,36,0.55), inset 0 0 14px rgba(251,191,36,0.12)',
+            colorTitle: '#fde68a', colorTagline: '#fbbf2470', rarityColor: '#fbbf24', rarityBg: 'rgba(78,45,0,0.7)',
+        },
+        'Caça aos detalhes 🎨': {
+            icon: '🎯', title: 'OLHO DE ÁGUIA', tagline: 'Detectou o que ninguém mais viu',
+            rarity: 'LENDÁRIO', colorBorder: '#e879f9', colorBg: 'rgba(217,70,239,0.12)',
+            colorGlow: '0 0 22px rgba(232,121,249,0.55), inset 0 0 14px rgba(232,121,249,0.12)',
+            colorTitle: '#f0abfc', colorTagline: '#e879f970', rarityColor: '#e879f9', rarityBg: 'rgba(74,4,78,0.7)',
+        },
+    };
+
+    // ── Render Badges ───────────────────────────────────────────
     const badgesContainer = document.getElementById('badges-container');
     if (badgesContainer) {
-        let badgesHtml = `<span class="text-xs text-fuchsia-500/70 font-mono uppercase tracking-widest mr-2">CONDECORAÇÕES MÁXIMAS:</span>`;
-        if (data.side_quests_completed.length === 0) {
-            badgesHtml += `<span class="text-[10px] text-slate-600 uppercase border border-slate-800 px-2 py-1">Nenhum emblema</span>`;
-        } else {
-            data.side_quests_completed.forEach(sq => {
-                let shortName = sq.split(' ').slice(0, 2).join('_');
+        const earnedCount = data.side_quests_completed.length;
+        const totalBadges = questsConfig.side_quests ? questsConfig.side_quests.length : 3;
+        const hexClip = 'polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)';
+
+        let badgesHtml = `
+            <div style="width:100%;display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-size:11px;color:#d946ef;font-family:monospace;text-transform:uppercase;letter-spacing:0.15em;">🏅 Condecorações</span>
+                <span style="font-size:9px;font-family:monospace;color:#475569;border:1px solid #1e293b;padding:2px 8px;">${earnedCount}/${totalBadges} desbloqueadas</span>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:16px;width:100%;margin-top:12px;">
+        `;
+
+        const allSideQuests = questsConfig.side_quests || [];
+        allSideQuests.forEach(sq => {
+            const isEarned = data.side_quests_completed.includes(sq.name);
+            const cfg = BADGE_CONFIG[sq.name];
+            if (!cfg) return;
+
+            if (isEarned) {
                 badgesHtml += `
-                    <div class="bg-fuchsia-950/30 border border-fuchsia-500 text-fuchsia-300 px-3 py-1 shadow-[0_0_15px_rgba(232,121,249,0.3)] neon-box-fuchsia flex items-center gap-2">
-                        <span class="animate-pulse">★</span> <span class="text-[10px] font-bold tracking-widest uppercase">${shortName}</span>
+                    <div class="badge-card" style="display:flex;flex-direction:column;align-items:center;gap:6px;width:100px;cursor:default;" title="${sq.name}">
+                        <div style="width:76px;height:76px;clip-path:${hexClip};background:${cfg.colorBg};display:flex;align-items:center;justify-content:center;box-shadow:${cfg.colorGlow};outline:2px solid ${cfg.colorBorder};outline-offset:-2px;">
+                            <span style="font-size:28px;line-height:1;">${cfg.icon}</span>
+                        </div>
+                        <span style="font-size:8.5px;font-family:monospace;font-weight:bold;letter-spacing:0.12em;text-transform:uppercase;color:${cfg.colorTitle};text-align:center;line-height:1.2;">${cfg.title}</span>
+                        <span style="font-size:7.5px;font-family:monospace;font-weight:bold;text-transform:uppercase;letter-spacing:0.1em;color:${cfg.rarityColor};background:${cfg.rarityBg};border:1px solid ${cfg.colorBorder}44;padding:1px 6px;">${cfg.rarity}</span>
+                        <span style="font-size:7.5px;font-family:monospace;color:${cfg.colorTagline};text-align:center;line-height:1.3;">${cfg.tagline}</span>
                     </div>
                 `;
-            });
-        }
+            } else {
+                badgesHtml += `
+                    <div class="badge-locked" style="display:flex;flex-direction:column;align-items:center;gap:6px;width:100px;cursor:default;" title="Complete a missão para desbloquear">
+                        <div style="width:76px;height:76px;clip-path:${hexClip};background:rgba(15,23,42,0.8);display:flex;align-items:center;justify-content:center;outline:2px solid #334155;outline-offset:-2px;">
+                            <span style="font-size:28px;line-height:1;">🔒</span>
+                        </div>
+                        <span style="font-size:8.5px;font-family:monospace;font-weight:bold;letter-spacing:0.12em;color:#334155;text-transform:uppercase;">???</span>
+                        <span style="font-size:7.5px;font-family:monospace;color:#1e293b;border:1px solid #1e293b;padding:1px 6px;text-transform:uppercase;letter-spacing:0.1em;">BLOQUEADA</span>
+                    </div>
+                `;
+            }
+        });
+
+        badgesHtml += `</div>`;
         badgesContainer.innerHTML = badgesHtml;
     }
 
+    // ── Render Logs History ─────────────────────────────────────
     const logsContainer = document.getElementById('logs-history');
-    logsContainer.innerHTML = "";
+    logsContainer.innerHTML = '';
     if (data.diario_logs.length === 0) {
-        logsContainer.innerHTML = "<p class='italic text-slate-600 text-center py-4 text-[10px] uppercase tracking-widest'>Nenhum log registrado na sessão atual.</p>";
+        logsContainer.innerHTML = `<p style="font-style:italic;color:#475569;text-align:center;padding:16px 0;font-size:10px;text-transform:uppercase;letter-spacing:0.2em;">Você ainda não enviou nenhum relatório.</p>`;
     } else {
         [...data.diario_logs].reverse().forEach(log => {
+            const isSideQuest = log.level_name.includes("Side Quest");
             const logEl = document.createElement('div');
-            logEl.className = "bg-black/50 p-3 border-l-2 border-cyan-800 space-y-1 mb-2 hover:bg-slate-900/50 transition-colors";
+            logEl.className = `log-item ${isSideQuest ? 'log-item-side' : ''}`;
 
-            let headerColor = "text-cyan-500";
-            let isSideQuest = log.level_name.includes("Side Quest");
-            if (isSideQuest) {
-                headerColor = "text-fuchsia-500";
-                logEl.className = "bg-black/50 p-3 border-l-2 border-fuchsia-800 space-y-1 mb-2 hover:bg-slate-900/50 transition-colors";
-            }
-
-            let contentHtml = `<p class="mt-1"><span class="text-slate-500 text-[10px]">> OUT:</span> <span class="text-slate-300 text-xs">${log.learned}</span></p>`;
+            let contentHtml = `<p style="margin-top:4px;"><span style="color:#64748b;font-size:10px;">> OUT:</span> <span style="color:#cbd5e1;font-size:0.75rem;">${log.learned}</span></p>`;
             if (log.not_understood !== "N/A") {
                 contentHtml = `
-                    <div class="mt-2 space-y-1.5 border-t border-slate-900 pt-2 text-xs">
-                        <p><span class="text-cyan-500 text-[10px] uppercase tracking-widest font-bold">> Atividade:</span> <span class="text-cyan-100">${log.activity_text || ''}</span></p>
-                        <p><span class="text-cyan-800 text-[10px] uppercase tracking-widest font-bold">> Acquired:</span> <span class="text-slate-300">${log.learned}</span></p>
-                        <p><span class="text-red-900/80 text-[10px] uppercase tracking-widest font-bold">> Errors:</span> <span class="text-slate-400">${log.not_understood}</span></p>
-                        <p><span class="text-emerald-900/80 text-[10px] uppercase tracking-widest font-bold">> Next_Target:</span> <span class="text-slate-400">${log.explore_more}</span></p>
+                    <div class="log-item-body">
+                        <div><span class="log-detail-label" style="color:#06b6d4;">> Atividade:</span><span class="log-detail-val" style="color:#cffafe;">${log.activity_text || ''}</span></div>
+                        <div><span class="log-detail-label" style="color:#155e75;">> Adquirido:</span><span class="log-detail-val" style="color:#cbd5e1;">${log.learned}</span></div>
+                        <div><span class="log-detail-label" style="color:rgba(127,29,29,0.8);">> Dúvidas:</span><span class="log-detail-val" style="color:#94a3b8;">${log.not_understood}</span></div>
+                        <div><span class="log-detail-label" style="color:rgba(6,78,59,0.8);">> Próximos Passos:</span><span class="log-detail-val" style="color:#94a3b8;">${log.explore_more}</span></div>
                     </div>
                 `;
             }
 
             logEl.innerHTML = `
-                <div class="flex justify-between items-start mb-1">
-                    <span class="font-bold ${headerColor} text-[10px] uppercase tracking-wider">${log.level_name}</span>
-                    <span class="text-[8px] text-slate-600 tracking-widest">${log.timestamp || '00:00:00'}</span>
+                <div class="log-item-header">
+                    <span class="log-item-name ${isSideQuest ? 'log-item-name-fuchsia' : 'log-item-name-cyan'}">${log.level_name}</span>
+                    <span class="log-item-time">${log.timestamp || '00:00:00'}</span>
                 </div>
                 ${contentHtml}
             `;
@@ -271,56 +303,54 @@ function openDiario(missionName, missionId) {
     activeMissionId = missionId;
 
     const qConf = questsConfig.main_quests.find(q => q.id === missionId);
-    let instrHtml = "";
+    let instrHtml = '';
     if (qConf && qConf.detailed_instructions) {
-        let dels = qConf.deliverables ? `<ul class="list-disc pl-4 mt-2 space-y-1">${qConf.deliverables.map(d => `<li>${d}</li>`).join('')}</ul>` : '';
-        instrHtml = `<p class="font-bold text-cyan-400 mb-1">>> INSTRUÇÕES P/ OPERAÇÃO:</p>
-                     <p class="text-cyan-100">${qConf.detailed_instructions}</p>
+        let dels = qConf.deliverables
+            ? `<ul style="list-style:disc;padding-left:16px;margin-top:8px;">${qConf.deliverables.map(d => `<li>${d}</li>`).join('')}</ul>`
+            : '';
+        instrHtml = `<p style="font-weight:bold;color:#22d3ee;margin-bottom:4px;">>> 📋 Instruções:</p>
+                     <p style="color:#a5f3fc;">${qConf.detailed_instructions}</p>
                      ${dels}`;
     }
     const instContainer = document.getElementById('modal-mission-instructions');
     if (instContainer) {
         instContainer.innerHTML = instrHtml;
-        if (!instrHtml) instContainer.classList.add('hidden');
-        else instContainer.classList.remove('hidden');
+        instContainer.style.display = instrHtml ? '' : 'none';
     }
 
-    // search for past log
     const pastLogs = globalPlayerLogs.filter(l => l.level_name === missionName);
     const btn = document.getElementById('btn-submit-diario');
     const fields = ['form-activity', 'form-learned', 'form-not-understood', 'form-explore-more'];
 
     if (pastLogs.length > 0 && missionId < globalCurrentLevel) {
-        const latest = pastLogs[pastLogs.length - 1]; // get most recent submission
-        document.getElementById('form-activity').value = latest.activity_text || "";
-        document.getElementById('form-learned').value = latest.learned || "";
-        document.getElementById('form-not-understood').value = latest.not_understood || "";
-        document.getElementById('form-explore-more').value = latest.explore_more || "";
+        const latest = pastLogs[pastLogs.length - 1];
+        document.getElementById('form-activity').value = latest.activity_text || '';
+        document.getElementById('form-learned').value = latest.learned || '';
+        document.getElementById('form-not-understood').value = latest.not_understood || '';
+        document.getElementById('form-explore-more').value = latest.explore_more || '';
 
         fields.forEach(f => {
             const el = document.getElementById(f);
             el.setAttribute('readonly', true);
-            el.classList.add('bg-black', 'text-slate-500');
-            el.classList.remove('bg-black/80', 'text-cyan-100', 'focus:border-cyan-400');
+            el.classList.add('modal-textarea-readonly');
         });
 
-        btn.innerText = "NOVA VERSÃO 2.0";
-        btn.className = "flex-1 bg-fuchsia-950 border border-fuchsia-500 text-fuchsia-400 hover:bg-fuchsia-500 hover:text-black font-mono font-bold py-3 transition-colors uppercase tracking-widest text-xs";
+        btn.innerText = 'ATUALIZAR MEU RELATÓRIO';
+        btn.className = 'btn-modal-submit btn-modal-submit-fuchsia-alt';
         btn.onclick = () => enableDiarioEdit();
     } else {
         fields.forEach(f => {
             const el = document.getElementById(f);
-            el.value = "";
+            el.value = '';
             el.removeAttribute('readonly');
-            el.classList.add('bg-black/80', 'text-cyan-100', 'focus:border-cyan-400');
-            el.classList.remove('bg-black', 'text-slate-500');
+            el.classList.remove('modal-textarea-readonly');
         });
-        btn.innerText = "TRANSMISSÃO CRIPTOGRAFADA";
-        btn.className = "flex-1 bg-cyan-950 border border-cyan-500 text-cyan-400 hover:bg-cyan-500 hover:text-black font-mono font-bold py-3 transition-colors uppercase tracking-widest text-xs";
+        btn.innerText = 'Transmissão Criptografada';
+        btn.className = 'btn-modal-submit btn-modal-submit-cyan';
         btn.onclick = () => submitDiario();
     }
 
-    document.getElementById('modal-target-mission').innerText = `ALVO DE TRANSMISSÃO: ${missionName}`;
+    document.getElementById('modal-target-mission').innerText = `ALVO: ${missionName}`;
     document.getElementById('modal-diario').classList.remove('hidden');
 }
 
@@ -329,22 +359,20 @@ function enableDiarioEdit() {
     fields.forEach(f => {
         const el = document.getElementById(f);
         el.removeAttribute('readonly');
-        el.classList.add('bg-black/80', 'text-cyan-100', 'focus:border-cyan-400');
-        el.classList.remove('bg-black', 'text-slate-500');
+        el.classList.remove('modal-textarea-readonly');
     });
 
     const btn = document.getElementById('btn-submit-diario');
-    btn.innerText = "ENVIAR NOVA VERSÃO";
-    btn.className = "flex-1 bg-emerald-950 border border-emerald-500 text-emerald-400 hover:bg-emerald-500 hover:text-black font-mono font-bold py-3 transition-colors uppercase tracking-widest text-xs shadow-[0_0_15px_rgba(16,185,129,0.3)]";
+    btn.innerText = 'ENVIAR ATUALIZAÇÃO';
+    btn.className = 'btn-modal-submit btn-modal-submit-emerald';
     btn.onclick = () => submitDiario();
 }
 
 function closeDiario() {
     document.getElementById('modal-diario').classList.add('hidden');
-    document.getElementById('form-activity').value = "";
-    document.getElementById('form-learned').value = "";
-    document.getElementById('form-not-understood').value = "";
-    document.getElementById('form-explore-more').value = "";
+    ['form-activity', 'form-learned', 'form-not-understood', 'form-explore-more'].forEach(f => {
+        document.getElementById(f).value = '';
+    });
 }
 
 async function submitDiario() {
@@ -355,7 +383,7 @@ async function submitDiario() {
     const playerName = getPlayerName();
 
     if (!activity || !learned || !notUnderstood || !exploreMore) {
-        alert('ERRO DE TRANSMISSÃO: PACOTES DE DADOS INCOMPLETOS. PREENCHA TODOS OS CAMPOS.');
+        alert('Preencha todos os campos antes de enviar!');
         return;
     }
 
@@ -381,32 +409,31 @@ async function submitDiario() {
     }
 
     closeDiario();
-    init(); // Re-fetch all and render
+    init();
 }
 
 function openSideQuest(sideName) {
     activeSideQuestName = sideName;
 
     const qConf = questsConfig.side_quests.find(q => q.name === sideName);
-    let instrHtml = "";
+    let instrHtml = '';
     if (qConf && qConf.detailed_instructions) {
-        instrHtml = `<p class="font-bold text-fuchsia-400 mb-1">>> INSTRUÇÕES P/ DECODIFICAÇÃO:</p>
-                     <p class="text-fuchsia-100">${qConf.detailed_instructions}</p>`;
+        instrHtml = `<p style="font-weight:bold;color:#e879f9;margin-bottom:4px;">>> 📋 Como fazer:</p>
+                     <p style="color:#fae8ff;white-space:pre-line;">${qConf.detailed_instructions}</p>`;
     }
     const instContainer = document.getElementById('modal-side-instructions');
     if (instContainer) {
         instContainer.innerHTML = instrHtml;
-        if (!instrHtml) instContainer.classList.add('hidden');
-        else instContainer.classList.remove('hidden');
+        instContainer.style.display = instrHtml ? '' : 'none';
     }
 
-    document.getElementById('modal-side-title').innerText = `ALVO DE PROCESSAMENTO: ${sideName}`;
+    document.getElementById('modal-side-title').innerText = `MISSÃO EXTRA: ${sideName}`;
     document.getElementById('modal-side').classList.remove('hidden');
 }
 
 function closeSideQuest() {
     document.getElementById('modal-side').classList.add('hidden');
-    document.getElementById('form-side-text').value = "";
+    document.getElementById('form-side-text').value = '';
 }
 
 async function submitSideQuest() {
@@ -414,7 +441,7 @@ async function submitSideQuest() {
     const playerName = getPlayerName();
 
     if (!text) {
-        alert('ERRO DE PROCESSAMENTO: CONTEÚDO VAZIO.');
+        alert('Escreva suas anotações antes de enviar!');
         return;
     }
 
@@ -429,28 +456,28 @@ async function submitSideQuest() {
     });
 
     closeSideQuest();
-    init(); // Re-fetch all and render
+    init();
 }
 
-let selectedAdminPlayerName = "";
+let selectedAdminPlayerName = '';
 
 async function renderAdminDashboard() {
     const adminName = getPlayerName();
     const res = await fetch(`/api/admin/all-players?admin_name=${encodeURIComponent(adminName)}`);
     if (res.status !== 200) {
-        alert("Efetue login novamente como Carol.");
+        alert('Efetue login novamente como Carol.');
         logout();
         return;
     }
 
     const allData = await res.json();
     const playersList = document.getElementById('admin-players-list');
-    playersList.innerHTML = "";
+    playersList.innerHTML = '';
 
     const playerNames = Object.keys(allData).filter(name => name !== 'Carol');
 
     if (playerNames.length === 0) {
-        playersList.innerHTML = `<p class="italic text-slate-605 text-center py-4 text-xs font-mono uppercase tracking-widest">Nenhum agente ativo no momento.</p>`;
+        playersList.innerHTML = `<p style="font-style:italic;color:#64748b;text-align:center;padding:16px 0;font-size:0.75rem;font-family:monospace;text-transform:uppercase;letter-spacing:0.2em;">Nenhum agente ativo no momento.</p>`;
         document.getElementById('admin-detail-placeholder').classList.remove('hidden');
         document.getElementById('admin-player-detail').classList.add('hidden');
         return;
@@ -460,20 +487,17 @@ async function renderAdminDashboard() {
         const pState = allData[name];
         const isActive = name === selectedAdminPlayerName;
 
-        let activeClass = isActive
-            ? "border-cyan-500/80 bg-cyan-950/30 text-cyan-400 neon-box-cyan"
-            : "border-slate-800 bg-black/60 text-slate-400 hover:border-cyan-800 hover:text-cyan-400";
-
-        playersList.innerHTML += `
-            <button onclick="selectAdminPlayer('${name}', ${JSON.stringify(pState).replace(/"/g, '&quot;')})" 
-                class="w-full text-left p-4 border font-mono text-xs transition-all flex flex-col gap-1 relative ${activeClass}">
-                ${isActive ? '<div class="absolute top-0 left-0 w-1.5 h-1.5 border-t border-l border-cyan-400"></div>' : ''}
-                <div class="flex justify-between items-center w-full">
-                    <span class="font-bold uppercase tracking-wider">${name}</span>
-                    <span class="text-[9px] bg-slate-900 px-1.5 py-0.5 border border-slate-800 text-slate-400">LVL 0${pState.current_level}</span>
-                </div>
-            </button>
+        const btn = document.createElement('button');
+        btn.className = `admin-player-btn ${isActive ? 'active' : 'inactive'}`;
+        btn.innerHTML = `
+            ${isActive ? '<div style="position:absolute;top:0;left:0;width:6px;height:6px;border-top:1px solid #22d3ee;border-left:1px solid #22d3ee;"></div>' : ''}
+            <div class="admin-player-btn-row">
+                <span style="font-weight:bold;text-transform:uppercase;letter-spacing:0.1em;">${name}</span>
+                <span class="admin-player-lvl">LVL 0${pState.current_level}</span>
+            </div>
         `;
+        btn.onclick = () => selectAdminPlayer(name, pState);
+        playersList.appendChild(btn);
     });
 
     if (selectedAdminPlayerName && allData[selectedAdminPlayerName]) {
@@ -484,19 +508,9 @@ async function renderAdminDashboard() {
 function selectAdminPlayer(name, pState) {
     selectedAdminPlayerName = name;
 
-    const buttons = document.querySelectorAll('#admin-players-list button');
-    buttons.forEach(btn => {
+    document.querySelectorAll('.admin-player-btn').forEach(btn => {
         const btnName = btn.querySelector('span').innerText.trim();
-        if (btnName === name) {
-            btn.className = "w-full text-left p-4 border font-mono text-xs transition-all flex flex-col gap-1 relative border-cyan-500/80 bg-cyan-950/30 text-cyan-400 neon-box-cyan";
-            if (!btn.querySelector('.absolute')) {
-                btn.insertAdjacentHTML('afterbegin', '<div class="absolute top-0 left-0 w-1.5 h-1.5 border-t border-l border-cyan-400"></div>');
-            }
-        } else {
-            btn.className = "w-full text-left p-4 border font-mono text-xs transition-all flex flex-col gap-1 relative border-slate-800 bg-black/60 text-slate-400 hover:border-cyan-800 hover:text-cyan-400";
-            const borderAccent = btn.querySelector('.absolute');
-            if (borderAccent) borderAccent.remove();
-        }
+        btn.className = `admin-player-btn ${btnName === name ? 'active' : 'inactive'}`;
     });
 
     document.getElementById('admin-detail-placeholder').classList.add('hidden');
@@ -514,87 +528,80 @@ function selectAdminPlayer(name, pState) {
     document.getElementById('admin-detail-progress-percent').innerText = `${pct}%`;
     document.getElementById('admin-detail-progress-bar').style.width = `${pct}%`;
 
+    // Achievements
     const achievementsContainer = document.getElementById('admin-detail-achievements');
-    achievementsContainer.innerHTML = "";
+    achievementsContainer.innerHTML = '';
 
     questsConfig.side_quests.forEach(quest => {
         const isCompleted = pState.side_quests_completed.includes(quest.name);
-
-        let cardClass, badgeClass, badgeText, contentColor;
-        if (isCompleted) {
-            cardClass = "bg-emerald-950/20 border-emerald-500/50 p-4 border relative font-mono text-xs";
-            badgeClass = "bg-emerald-950 text-emerald-400 px-2 py-0.5 border border-emerald-500/50 text-[9px] uppercase tracking-widest font-bold";
-            badgeText = "CONCLUÍDO";
-            contentColor = "text-slate-300";
-        } else {
-            cardClass = "bg-slate-900/40 border-slate-800 p-4 border opacity-60 relative font-mono text-xs";
-            badgeClass = "bg-slate-850 text-slate-500 px-2 py-0.5 border border-slate-800 text-[9px] uppercase tracking-widest";
-            badgeText = "EM ANDAMENTO";
-            contentColor = "text-slate-500";
-        }
+        const cardClass = isCompleted ? 'admin-achievement-card admin-achievement-done' : 'admin-achievement-card admin-achievement-pending';
+        const badgeClass = isCompleted ? 'admin-achievement-badge admin-achievement-badge-done' : 'admin-achievement-badge admin-achievement-badge-pending';
+        const badgeText = isCompleted ? 'CONCLUÍDO ✅' : 'EM ANDAMENTO';
+        const descClass = isCompleted ? 'admin-achievement-desc admin-achievement-desc-done' : 'admin-achievement-desc admin-achievement-desc-pending';
 
         achievementsContainer.innerHTML += `
             <div class="${cardClass}">
-                <div class="flex justify-between items-start mb-2">
-                    <span class="font-bold text-fuchsia-400 uppercase tracking-widest text-[10px]">${quest.name}</span>
+                <div class="admin-achievement-header">
+                    <span class="admin-achievement-name">${quest.name}</span>
                     <span class="${badgeClass}">${badgeText}</span>
                 </div>
-                <p class="${contentColor} text-[11px] leading-relaxed">${quest.description}</p>
+                <p class="${descClass}">${quest.description}</p>
             </div>
         `;
     });
 
+    // Logs
     const logsContainer = document.getElementById('admin-detail-logs');
-    logsContainer.innerHTML = "";
+    logsContainer.innerHTML = '';
 
     if (pState.diario_logs.length === 0) {
-        logsContainer.innerHTML = `<p class="italic text-slate-550 text-center py-8 font-mono text-xs uppercase tracking-widest">Nenhum log enviado por este agente.</p>`;
+        logsContainer.innerHTML = `<p style="font-style:italic;color:#64748b;text-align:center;padding:32px 0;font-family:monospace;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.2em;">Nenhum log enviado por este agente.</p>`;
     } else {
         [...pState.diario_logs].reverse().forEach(log => {
             const isSide = log.level_name.includes("Side Quest");
-            const headerColor = isSide ? "text-fuchsia-500" : "text-cyan-400";
-            const borderColName = isSide ? "border-fuchsia-800" : "border-cyan-800";
+            const logClass = isSide ? 'admin-log-item admin-log-item-fuchsia' : 'admin-log-item admin-log-item-cyan';
+            const nameClass = isSide ? 'admin-log-name-fuchsia' : 'admin-log-name-cyan';
 
-            let detailsHtml = "";
+            let detailsHtml = '';
             if (log.not_understood !== "N/A") {
-                const doubtHighlight = (log.not_understood && log.not_understood.trim() !== "" && log.not_understood.trim().toLowerCase() !== "nenhuma" && log.not_understood.trim().toLowerCase() !== "nada")
-                    ? "border border-red-500/30 bg-red-950/20 p-2 text-red-300 font-bold"
-                    : "text-slate-400";
+                const hasDoubt = log.not_understood && log.not_understood.trim() !== ''
+                    && !['nenhuma', 'nada'].includes(log.not_understood.trim().toLowerCase());
+                const doubtClass = hasDoubt ? 'admin-doubt-highlight' : '';
 
                 detailsHtml = `
-                    <div class="mt-3 space-y-2.5 border-t border-slate-900 pt-3 text-xs">
+                    <div class="admin-log-body">
                         <div>
-                            <span class="text-cyan-400 block uppercase font-bold text-[10px]">> Atividade em si:</span>
-                            <span class="text-cyan-100">${log.activity_text || ''}</span>
+                            <span class="admin-log-section-label" style="color:#22d3ee;">> Atividade:</span>
+                            <span class="admin-log-section-val" style="color:#cffafe;">${log.activity_text || ''}</span>
                         </div>
                         <div>
-                            <span class="text-cyan-700 block uppercase font-bold text-[10px]">> Aprendizado:</span>
-                            <span class="text-slate-300">${log.learned}</span>
+                            <span class="admin-log-section-label" style="color:#155e75;">> Aprendizado:</span>
+                            <span class="admin-log-section-val" style="color:#cbd5e1;">${log.learned}</span>
                         </div>
                         <div>
-                            <span class="text-red-500/80 block uppercase font-bold text-[10px]">> Anomalias (Dúvidas):</span>
-                            <div class="${doubtHighlight}">${log.not_understood}</div>
+                            <span class="admin-log-section-label" style="color:rgba(239,68,68,0.8);">> Dúvidas:</span>
+                            <div class="${doubtClass} admin-log-section-val" style="${hasDoubt ? '' : 'color:#94a3b8;'}">${log.not_understood}</div>
                         </div>
                         <div>
-                            <span class="text-emerald-500/80 block uppercase font-bold text-[10px]">> Próximos Passos:</span>
-                            <span class="text-slate-400">${log.explore_more}</span>
+                            <span class="admin-log-section-label" style="color:rgba(16,185,129,0.8);">> Próximos Passos:</span>
+                            <span class="admin-log-section-val" style="color:#94a3b8;">${log.explore_more}</span>
                         </div>
                     </div>
                 `;
             } else {
                 detailsHtml = `
-                    <div class="mt-2 text-[11px]">
-                        <span class="text-fuchsia-600 block uppercase font-bold text-[9px]">> Conteúdo Processado:</span>
-                        <span class="text-slate-300">${log.learned}</span>
+                    <div style="margin-top:8px;">
+                        <span style="color:#d946ef;font-size:0.5625rem;text-transform:uppercase;font-weight:bold;letter-spacing:0.2em;display:block;">> Conteúdo:</span>
+                        <span style="color:#cbd5e1;font-size:0.6875rem;">${log.learned}</span>
                     </div>
                 `;
             }
 
             logsContainer.innerHTML += `
-                <div class="bg-black/80 border-l-2 ${borderColName} p-4 space-y-1 relative font-mono text-xs">
-                    <div class="flex justify-between items-start">
-                        <span class="font-bold ${headerColor} uppercase tracking-wider text-[10px]">${log.level_name}</span>
-                        <span class="text-[9px] text-slate-600">${log.timestamp || '00:00:00'}</span>
+                <div class="${logClass}">
+                    <div class="admin-log-header">
+                        <span class="${nameClass}">${log.level_name}</span>
+                        <span class="admin-log-time">${log.timestamp || '00:00:00'}</span>
                     </div>
                     ${detailsHtml}
                 </div>
@@ -618,25 +625,27 @@ async function updateTeamStatus() {
         let maxLevelsPossible = team.length * 3;
 
         if (team.length === 0) {
-            container.innerHTML = `<p class="col-span-full text-[10px] text-slate-500 font-mono uppercase">Esquadrão vazio.</p>`;
+            container.innerHTML = `<p style="grid-column:1/-1;font-size:10px;color:#64748b;font-family:monospace;text-transform:uppercase;">Esquadrão vazio.</p>`;
             return;
         }
 
         team.forEach(player => {
             totalLevels += player.level;
-
-            // Visual logic for each coworker
             const isMe = player.name === getPlayerName();
-            const badgeClass = isMe ? "bg-cyan-950 text-cyan-400 border-cyan-800" : "bg-slate-900 text-slate-400 border-slate-700";
-            const borderAccent = isMe ? "border-cyan-500/50 shadow-[0_0_8px_rgba(34,211,238,0.2)]" : "border-slate-800 opacity-80";
-            const pulse = isMe ? `<span class="animate-pulse w-1.5 h-1.5 bg-cyan-500 inline-block rounded-full"></span>` : ``;
+            const borderColor = isMe ? '1px solid rgba(6,182,212,0.5)' : '1px solid #1e293b';
+            const boxShadow = isMe ? '0 0 8px rgba(34,211,238,0.2)' : 'none';
+            const opacity = isMe ? '1' : '0.8';
+            const lvlBg = isMe ? '#083344' : '#0f172a';
+            const lvlColor = isMe ? '#22d3ee' : '#94a3b8';
+            const lvlBorder = isMe ? '#155e75' : '#334155';
+            const pulse = isMe ? `<span class="animate-pulse" style="display:inline-block;width:6px;height:6px;background:#22d3ee;border-radius:50%;"></span>` : '';
 
             container.innerHTML += `
-                <div class="bg-black/50 p-2 border ${borderAccent} flex items-center justify-between font-mono">
-                    <span class="text-[10px] font-bold text-slate-300 uppercase tracking-widest flex items-center gap-1.5 truncate">
+                <div style="background:rgba(0,0,0,0.5);padding:8px;border:${borderColor};box-shadow:${boxShadow};display:flex;align-items:center;justify-content:space-between;font-family:monospace;opacity:${opacity};">
+                    <span style="font-size:10px;font-weight:bold;color:#cbd5e1;text-transform:uppercase;letter-spacing:0.2em;display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
                         ${pulse} ${player.name}
                     </span>
-                    <span class="text-[9px] px-1 py-0.5 border ${badgeClass}">LVL 0${player.level}</span>
+                    <span style="font-size:9px;padding:2px 4px;border:1px solid ${lvlBorder};background:${lvlBg};color:${lvlColor};">LVL 0${player.level}</span>
                 </div>
             `;
         });
@@ -649,30 +658,34 @@ async function updateTeamStatus() {
         const bonusMsg = document.getElementById('team-bonus-message');
 
         if (progressBar) progressBar.style.width = `${percent}%`;
-        if (goalText) goalText.innerText = `META: ${percent}%`;
+        if (goalText) goalText.innerText = `Progresso do time: ${percent}%`;
 
         if (percent >= 100) {
             if (bonusMsg) bonusMsg.classList.remove('hidden');
         } else {
             if (bonusMsg) bonusMsg.classList.add('hidden');
         }
-
     } catch (e) {
         console.error("Failed to load team status", e);
     }
 }
 
 function switchTab(tabName) {
+    const mainContent = document.getElementById('content-main');
+    const sideContent = document.getElementById('content-side');
+    const tabMain = document.getElementById('tab-main');
+    const tabSide = document.getElementById('tab-side');
+
     if (tabName === 'main') {
-        document.getElementById('content-main').classList.remove('hidden');
-        document.getElementById('content-side').classList.add('hidden');
-        document.getElementById('tab-main').className = "bg-cyan-950 text-cyan-400 px-6 py-3 border-t border-l border-r border-cyan-500 font-bold uppercase tracking-widest text-sm shadow-[0_0_15px_rgba(34,211,238,0.2)] transition-all";
-        document.getElementById('tab-side').className = "bg-black text-slate-500 px-6 py-3 border-t border-l border-r border-slate-800 hover:text-cyan-400 uppercase tracking-widest text-sm font-bold transition-all";
+        mainContent.classList.remove('hidden');
+        sideContent.classList.add('hidden');
+        tabMain.className = 'tab-btn active';
+        tabSide.className = 'tab-btn inactive';
     } else {
-        document.getElementById('content-main').classList.add('hidden');
-        document.getElementById('content-side').classList.remove('hidden');
-        document.getElementById('tab-main').className = "bg-black text-slate-500 px-6 py-3 border-t border-l border-r border-slate-800 hover:text-cyan-400 uppercase tracking-widest text-sm font-bold transition-all";
-        document.getElementById('tab-side').className = "bg-cyan-950 text-cyan-400 px-6 py-3 border-t border-l border-r border-cyan-500 font-bold uppercase tracking-widest text-sm shadow-[0_0_15px_rgba(34,211,238,0.2)] transition-all";
+        mainContent.classList.add('hidden');
+        sideContent.classList.remove('hidden');
+        tabMain.className = 'tab-btn inactive';
+        tabSide.className = 'tab-btn active';
     }
 }
 
