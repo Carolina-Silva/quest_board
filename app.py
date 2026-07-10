@@ -19,6 +19,7 @@ DATA_FILE = "data/quest_data.json"
 class DiarioEntry(BaseModel):
     player_name: str
     level_name: str
+    activity_text: str
     learned: str
     not_understood: str
     explore_more: str
@@ -79,6 +80,24 @@ def get_status(player_name: str = None):
     state["player_name"] = player_name
     return state
 
+@app.get("/api/admin/all-players")
+def get_all_players(admin_name: str = None):
+    if not admin_name:
+        raise HTTPException(status_code=400, detail="admin_name is required")
+    if admin_name != "Carol":
+        raise HTTPException(status_code=403, detail="Acesso não autorizado")
+    data = load_all_data()
+    return data
+
+@app.get("/api/team-status")
+def get_team_status():
+    data = load_all_data()
+    team = []
+    for name, state in data.items():
+        if name != "Carol" and state.get("mission_accepted", False):
+            team.append({"name": name, "level": state.get("current_level", 1)})
+    return {"team": team}
+
 @app.post("/api/accept-mission")
 def accept_mission(entry: AcceptMission):
     data = load_all_data()
@@ -118,6 +137,7 @@ def post_diario(entry: DiarioEntry):
         
     data[entry.player_name]["diario_logs"].append({
         "level_name": entry.level_name,
+        "activity_text": entry.activity_text,
         "learned": entry.learned,
         "not_understood": entry.not_understood,
         "explore_more": entry.explore_more,

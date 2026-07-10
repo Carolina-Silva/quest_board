@@ -1,0 +1,122 @@
+<!-- Painel de Gestor - Carol -->
+<div id="admin-board" class="hidden max-w-6xl mx-auto px-4 pt-8 relative z-10">
+    <header
+        class="border-b border-cyan-900/50 pb-6 mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <h1
+                class="text-3xl md:text-4xl font-mono font-bold text-cyan-400 tracking-widest uppercase neon-text-cyan glitch-hover">
+                INCOLAGEN_MONITOR_SYS</h1>
+            <p class="text-slate-500 mt-1 font-mono text-sm uppercase tracking-wider">Painel do Gestor / Supervisão e
+                Conquistas</p>
+        </div>
+        <div class="flex items-center gap-4 w-full md:w-auto">
+            <button onclick="init()"
+                class="bg-cyan-950/40 border border-cyan-500/50 px-4 py-3 text-cyan-400 hover:bg-cyan-500 hover:text-black transition-colors font-mono text-xs uppercase tracking-widest font-bold">
+                Recarregar Dados
+            </button>
+            <div class="bg-cyan-950/20 border border-cyan-500/50 px-4 py-2 text-center neon-box-cyan font-mono">
+                <span class="text-xs text-cyan-500/70 block uppercase tracking-widest">Nível de Acesso</span>
+                <span class="text-xl font-bold text-cyan-400 neon-text-cyan glitch-hover">GESTORA</span>
+            </div>
+            <button onclick="logout()"
+                class="bg-red-950/40 border border-red-500/50 px-4 py-3 text-red-400 hover:bg-red-500 hover:text-black transition-colors font-mono text-xs uppercase tracking-widest font-bold">
+                Sair
+            </button>
+        </div>
+    </header>
+
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        <!-- Sidebar: Lista de Agentes -->
+        <div class="lg:col-span-1 space-y-6">
+            <h2
+                class="text-base font-mono font-bold text-cyan-400 flex items-center gap-2 tracking-widest uppercase border-l-2 border-cyan-500 pl-2 glitch-hover">
+                <span class="animate-pulse">_</span> Agentes Ativos
+            </h2>
+            <div id="admin-players-list" class="space-y-3 max-h-[70vh] overflow-y-auto pr-1">
+                <!-- Inserido dinamicamente via JS -->
+            </div>
+        </div>
+
+        <!-- Área Principal: Progresso e Conquistas do Agente Selecionado -->
+        <div class="lg:col-span-3 space-y-6">
+            <div id="admin-detail-placeholder"
+                class="bg-slate-950/40 p-12 border border-slate-800 text-center font-mono opacity-60">
+                <p class="text-cyan-600/80 uppercase tracking-widest text-base font-bold mb-2 glitch-hover">> SISTEMA DE
+                    MONITORAMENTO PRONTO</p>
+                <p class="text-slate-400 text-sm">Selecione um agente na barra lateral para analisar relatórios e
+                    conquistas.</p>
+            </div>
+
+            <div id="admin-player-detail" class="hidden space-y-6">
+                <!-- Status & Progresso Geral -->
+                <div class="bg-slate-950/80 p-6 border border-cyan-500/60 neon-box-cyan relative">
+                    <div class="absolute top-0 left-0 w-2 h-2 border-t border-l border-cyan-400"></div>
+                    <div class="absolute top-0 right-0 w-2 h-2 border-t border-r border-cyan-400"></div>
+                    <div class="absolute bottom-0 left-0 w-2 h-2 border-b border-l border-cyan-400"></div>
+                    <div class="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-cyan-400"></div>
+
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 id="admin-detail-name"
+                                class="text-xl font-mono font-bold text-cyan-400 uppercase tracking-wider neon-text-cyan">
+                                AGENTE_NAME</h3>
+                            <p class="text-slate-500 font-mono text-[10px] uppercase tracking-wider mt-0.5">Visão Geral
+                                de Desempenho</p>
+                        </div>
+                        <div class="bg-cyan-950/30 border border-cyan-700 px-3 py-1 text-center font-mono">
+                            <span class="text-[9px] text-cyan-600 uppercase tracking-wider block">Fase Atual</span>
+                            <span id="admin-detail-level" class="text-sm font-bold text-cyan-300">LVL 01</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 font-mono">
+                        <div class="flex justify-between text-xs">
+                            <span class="text-slate-400">STATUS OPERACIONAL:</span>
+                            <span id="admin-detail-status-text" class="text-cyan-400">ATIVO</span>
+                        </div>
+                        <div class="relative pt-1">
+                            <div class="flex mb-2 items-center justify-between">
+                                <div class="text-[10px] uppercase tracking-wider text-slate-500">Progresso de Onboarding
+                                </div>
+                                <div class="text-right">
+                                    <span id="admin-detail-progress-percent"
+                                        class="text-[10px] font-semibold inline-block text-cyan-400">0%</span>
+                                </div>
+                            </div>
+                            <div class="flex h-2 mb-2 overflow-hidden bg-slate-900 border border-cyan-950">
+                                <div id="admin-detail-progress-bar"
+                                    class="flex flex-col justify-center text-center text-white bg-cyan-500 shadow-[0_0_10px_rgba(34,211,238,0.7)] transition-all duration-500"
+                                    style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Duas Colunas: Conquistas (Side Quests) e Relatórios Diários -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Conquistas de Side Quests -->
+                    <div class="space-y-4">
+                        <h4
+                            class="text-xs font-mono font-bold text-fuchsia-500 flex items-center gap-2 tracking-widest uppercase border-l-2 border-fuchsia-500 pl-2">
+                            Conquistas Opcionais
+                        </h4>
+                        <div id="admin-detail-achievements" class="space-y-4">
+                            <!-- Inserido dinamicamente via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Histórico de Transmissões / Trilha Principal -->
+                    <div class="space-y-4">
+                        <h4
+                            class="text-xs font-mono font-bold text-cyan-500 flex items-center gap-2 tracking-widest uppercase border-l-2 border-cyan-500 pl-2">
+                            Trilha Principal e Diários
+                        </h4>
+                        <div id="admin-detail-logs" class="space-y-4 max-h-[50vh] overflow-y-auto pr-1">
+                            <!-- Inserido dinamicamente via JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
