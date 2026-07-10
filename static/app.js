@@ -17,6 +17,7 @@ function logout() {
     if (welcomeScreen) welcomeScreen.classList.add('hidden');
     if (mainBoard) mainBoard.classList.add('hidden');
     if (adminBoard) adminBoard.classList.add('hidden');
+
     init();
 }
 
@@ -62,6 +63,7 @@ async function init() {
         globalPlayerLogs = data.diario_logs;
         if (mainBoard) mainBoard.classList.remove('hidden');
         document.getElementById('board-title').innerText = `OPERADOR: ${data.player_name}`;
+
         renderQuests(data);
         updateDashboard(data);
         updateTeamStatus();
@@ -205,6 +207,25 @@ function updateDashboard(data) {
 
     document.getElementById('progress-bar').style.width = `${progressPercentage}%`;
 
+    // Render Badges
+    const badgesContainer = document.getElementById('badges-container');
+    if (badgesContainer) {
+        let badgesHtml = `<span class="text-xs text-fuchsia-500/70 font-mono uppercase tracking-widest mr-2">CONDECORAÇÕES MÁXIMAS:</span>`;
+        if (data.side_quests_completed.length === 0) {
+            badgesHtml += `<span class="text-[10px] text-slate-600 uppercase border border-slate-800 px-2 py-1">Nenhum emblema</span>`;
+        } else {
+            data.side_quests_completed.forEach(sq => {
+                let shortName = sq.split(' ').slice(0, 2).join('_');
+                badgesHtml += `
+                    <div class="bg-fuchsia-950/30 border border-fuchsia-500 text-fuchsia-300 px-3 py-1 shadow-[0_0_15px_rgba(232,121,249,0.3)] neon-box-fuchsia flex items-center gap-2">
+                        <span class="animate-pulse">★</span> <span class="text-[10px] font-bold tracking-widest uppercase">${shortName}</span>
+                    </div>
+                `;
+            });
+        }
+        badgesContainer.innerHTML = badgesHtml;
+    }
+
     const logsContainer = document.getElementById('logs-history');
     logsContainer.innerHTML = "";
     if (data.diario_logs.length === 0) {
@@ -248,6 +269,21 @@ function updateDashboard(data) {
 function openDiario(missionName, missionId) {
     activeMissionName = missionName;
     activeMissionId = missionId;
+
+    const qConf = questsConfig.main_quests.find(q => q.id === missionId);
+    let instrHtml = "";
+    if (qConf && qConf.detailed_instructions) {
+        let dels = qConf.deliverables ? `<ul class="list-disc pl-4 mt-2 space-y-1">${qConf.deliverables.map(d => `<li>${d}</li>`).join('')}</ul>` : '';
+        instrHtml = `<p class="font-bold text-cyan-400 mb-1">>> INSTRUÇÕES P/ OPERAÇÃO:</p>
+                     <p class="text-cyan-100">${qConf.detailed_instructions}</p>
+                     ${dels}`;
+    }
+    const instContainer = document.getElementById('modal-mission-instructions');
+    if (instContainer) {
+        instContainer.innerHTML = instrHtml;
+        if (!instrHtml) instContainer.classList.add('hidden');
+        else instContainer.classList.remove('hidden');
+    }
 
     // search for past log
     const pastLogs = globalPlayerLogs.filter(l => l.level_name === missionName);
@@ -350,6 +386,20 @@ async function submitDiario() {
 
 function openSideQuest(sideName) {
     activeSideQuestName = sideName;
+
+    const qConf = questsConfig.side_quests.find(q => q.name === sideName);
+    let instrHtml = "";
+    if (qConf && qConf.detailed_instructions) {
+        instrHtml = `<p class="font-bold text-fuchsia-400 mb-1">>> INSTRUÇÕES P/ DECODIFICAÇÃO:</p>
+                     <p class="text-fuchsia-100">${qConf.detailed_instructions}</p>`;
+    }
+    const instContainer = document.getElementById('modal-side-instructions');
+    if (instContainer) {
+        instContainer.innerHTML = instrHtml;
+        if (!instrHtml) instContainer.classList.add('hidden');
+        else instContainer.classList.remove('hidden');
+    }
+
     document.getElementById('modal-side-title').innerText = `ALVO DE PROCESSAMENTO: ${sideName}`;
     document.getElementById('modal-side').classList.remove('hidden');
 }
