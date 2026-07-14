@@ -497,12 +497,12 @@ body::before {
 }
 
 .text-xs {
-    font-size: 0.75rem;
+    font-size: 1rem;
     line-height: 1rem;
 }
 
 .text-xxs {
-    font-size: 0.625rem;
+    font-size: 1rem;
     line-height: 0.875rem;
 }
 
@@ -851,9 +851,9 @@ body::before {
 }
 
 .welcome-desc {
-    color: rgba(6, 182, 212, 0.8);
+    color: rgba(167, 6, 6, 0.8);
     margin-bottom: 24px;
-    font-size: 0.75rem;
+    font-size: 0.9rem;
     line-height: 1.625;
     text-transform: uppercase;
 }
@@ -925,7 +925,7 @@ body::before {
 .board-subtitle {
     color: #64748b;
     margin-top: 4px;
-    font-size: 0.75rem;
+    font-size: 1rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
 }
@@ -945,7 +945,7 @@ body::before {
 }
 
 .progress-mini-label {
-    font-size: 0.6rem;
+    font-size: 1rem;
     color: rgba(6, 182, 212, 0.7);
     display: block;
     text-transform: uppercase;
@@ -978,7 +978,7 @@ body::before {
 }
 
 .level-label {
-    font-size: 0.6rem;
+    font-size: 1rem;
     color: rgba(6, 182, 212, 0.7);
     display: block;
     text-transform: uppercase;
@@ -998,7 +998,7 @@ body::before {
     border: 1px solid rgba(239, 68, 68, 0.5);
     padding: 12px 16px;
     color: #f87171;
-    font-size: 0.75rem;
+    font-size: 1rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.2em;
@@ -1016,7 +1016,7 @@ body::before {
     border: 1px solid rgba(6, 182, 212, 0.5);
     padding: 12px 16px;
     color: #22d3ee;
-    font-size: 0.75rem;
+    font-size: 1rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.2em;
@@ -1040,7 +1040,7 @@ body::before {
 .tab-btn {
     padding: 12px 24px;
     font-weight: 700;
-    font-size: 0.875rem;
+    font-size: 1rem;
     text-transform: uppercase;
     letter-spacing: 0.2em;
     cursor: pointer;
@@ -1083,7 +1083,7 @@ body::before {
 
 /* ── SECTION HEADERS ── */
 .section-header-cyan {
-    font-size: 0.75rem;
+    font-size: 1rem;
     font-weight: 700;
     color: #06b6d4;
     display: flex;
@@ -1097,7 +1097,7 @@ body::before {
 }
 
 .section-header-fuchsia {
-    font-size: 0.875rem;
+    font-size: 1rem;
     font-weight: 700;
     color: #e879f9;
     display: flex;
@@ -1130,7 +1130,7 @@ body::before {
 }
 
 .squad-title {
-    font-size: 0.75rem;
+    font-size: 1rem;
     font-weight: 700;
     color: #06b6d4;
     text-transform: uppercase;
@@ -1143,7 +1143,7 @@ body::before {
 
 .squad-goal-text {
     color: #0891b2;
-    font-size: 0.75rem;
+    font-size: 1rem;
 }
 
 .team-progress-bg {
@@ -1185,7 +1185,7 @@ body::before {
     background: rgba(2, 44, 34, 0.4);
     border: 1px solid rgba(16, 185, 129, 0.5);
     color: #34d399;
-    font-size: 0.75rem;
+    font-size: 1rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.2em;
@@ -1272,7 +1272,7 @@ body::before {
 
 .quest-badge {
     padding: 2px 8px;
-    font-size: 0.625rem;
+    font-size: 1rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.2em;
@@ -1301,7 +1301,7 @@ body::before {
 }
 
 .quest-desc {
-    font-size: 0.875rem;
+    font-size: 1rem;
     margin-bottom: 24px;
     line-height: 1.625;
 }
@@ -1326,7 +1326,7 @@ body::before {
 .quest-locked-msg {
     color: #ef4444;
     text-align: center;
-    font-size: 0.75rem;
+    font-size: 1rem;
     text-transform: uppercase;
     letter-spacing: 0.2em;
     animation: pulse 2s infinite;
@@ -1335,7 +1335,7 @@ body::before {
 .quest-deliverables {
     background: rgba(0, 0, 0, 0.5);
     padding: 16px;
-    font-size: 0.75rem;
+    font-size: 1rem;
     color: rgba(207, 250, 254, 0.7);
     margin-bottom: 24px;
     border-left: 2px solid #155e75;
@@ -1347,7 +1347,7 @@ body::before {
     color: #06b6d4;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    font-size: 0.625rem;
+    font-size: 1rem;
     margin-bottom: 8px;
 }
 
@@ -1366,7 +1366,7 @@ body::before {
     border: 1px solid #06b6d4;
     color: #22d3ee;
     font-weight: 700;
-    font-size: 0.875rem;
+    font-size: 1rem;
     padding: 12px 32px;
     text-transform: uppercase;
     letter-spacing: 0.2em;
@@ -1386,7 +1386,7 @@ body::before {
     border: 1px solid #475569;
     color: #94a3b8;
     font-weight: 700;
-    font-size: 0.875rem;
+    font-size: 1rem;
     padding: 12px 32px;
     text-transform: uppercase;
     letter-spacing: 0.2em;
@@ -1453,7 +1453,7 @@ body::before {
 }
 
 .side-card-title {
-    font-size: 0.75rem;
+    font-size: 1rem;
     font-weight: 700;
     color: #e879f9;
     text-transform: uppercase;
@@ -1466,7 +1466,7 @@ body::before {
 
 .side-badge {
     padding: 2px 8px;
-    font-size: 0.5625rem;
+    font-size: 1rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.2em;
@@ -1488,7 +1488,7 @@ body::before {
 }
 
 .side-card-desc {
-    font-size: 0.6875rem;
+    font-size: 1rem;
     color: #94a3b8;
     line-height: 1.625;
     margin-bottom: 16px;
@@ -1510,7 +1510,7 @@ body::before {
     background: transparent;
     border: 1px solid rgba(112, 26, 117, 0.8);
     color: rgba(217, 70, 239, 0.8);
-    font-size: 0.625rem;
+    font-size: 1rem;
     font-weight: 700;
     padding: 6px;
     text-transform: uppercase;
@@ -1554,7 +1554,7 @@ body::before {
 }
 
 .logs-box-title {
-    font-size: 0.75rem;
+    font-size: 1rem;
     font-weight: 700;
     color: #06b6d4;
     text-transform: uppercase;
@@ -1594,7 +1594,7 @@ body::before {
 
 .log-item-name {
     font-weight: 700;
-    font-size: 0.625rem;
+    font-size: 1rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
 }
@@ -1608,7 +1608,7 @@ body::before {
 }
 
 .log-item-time {
-    font-size: 0.5rem;
+    font-size: 1rem;
     color: #475569;
     letter-spacing: 0.2em;
 }
@@ -1618,7 +1618,7 @@ body::before {
 }
 
 .log-detail-label {
-    font-size: 0.625rem;
+    font-size: 1rem;
     text-transform: uppercase;
     letter-spacing: 0.2em;
     font-weight: 700;
@@ -1627,7 +1627,7 @@ body::before {
 }
 
 .log-detail-val {
-    font-size: 0.75rem;
+    font-size: 1rem;
 }
 
 /* ── MODALS ── */
@@ -1683,7 +1683,7 @@ body::before {
 }
 
 .modal-subtitle {
-    font-size: 0.625rem;
+    font-size: 1rem;
     text-transform: uppercase;
     letter-spacing: 0.2em;
     border-bottom: 1px solid rgba(22, 78, 99, 0.5);
@@ -1710,7 +1710,7 @@ body::before {
 .modal-instructions {
     padding: 12px;
     margin-bottom: 24px;
-    font-size: 0.75rem;
+    font-size: 1rem;
     line-height: 1.625;
     border-left: 2px solid;
 }
@@ -1735,7 +1735,7 @@ body::before {
 
 .modal-label {
     display: block;
-    font-size: 0.75rem;
+    font-size: 1rem;
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -1755,7 +1755,7 @@ body::before {
     background: rgba(0, 0, 0, 0.8);
     border: 1px solid #155e75;
     padding: 12px;
-    font-size: 0.875rem;
+    font-size: 1rem;
     color: #cffafe;
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
@@ -1804,7 +1804,7 @@ body::before {
     padding: 12px;
     text-transform: uppercase;
     letter-spacing: 0.2em;
-    font-size: 0.75rem;
+    font-size: 1rem;
     cursor: pointer;
     transition: all 0.2s;
 }
@@ -1820,7 +1820,7 @@ body::before {
     padding: 12px;
     text-transform: uppercase;
     letter-spacing: 0.2em;
-    font-size: 0.75rem;
+    font-size: 1rem;
     cursor: pointer;
     border: 1px solid;
     transition: all 0.2s;
@@ -1919,7 +1919,7 @@ body::before {
     text-align: left;
     padding: 16px;
     border: 1px solid;
-    font-size: 0.75rem;
+    font-size: 1rem;
     cursor: pointer;
     display: flex;
     flex-direction: column;
@@ -1955,7 +1955,7 @@ body::before {
 }
 
 .admin-player-lvl {
-    font-size: 0.5625rem;
+    font-size: 1rem;
     background: #0f172a;
     padding: 2px 6px;
     border: 1px solid #1e293b;
@@ -1981,7 +1981,7 @@ body::before {
 
 .admin-placeholder-sub {
     color: #94a3b8;
-    font-size: 0.875rem;
+    font-size: 1rem;
 }
 
 .admin-detail {
@@ -2016,7 +2016,7 @@ body::before {
 
 .admin-detail-subtitle {
     color: #64748b;
-    font-size: 0.625rem;
+    font-size: 1rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     margin-top: 2px;
@@ -2030,7 +2030,7 @@ body::before {
 }
 
 .admin-detail-lvl-label {
-    font-size: 0.5625rem;
+    font-size: 1rem;
     color: #0891b2;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -2038,7 +2038,7 @@ body::before {
 }
 
 .admin-detail-lvl-val {
-    font-size: 0.875rem;
+    font-size: 1rem;
     font-weight: 700;
     color: #67e8f9;
 }
@@ -2046,7 +2046,7 @@ body::before {
 .admin-detail-stat-row {
     display: flex;
     justify-content: space-between;
-    font-size: 0.75rem;
+    font-size: 1rem;
     margin-bottom: 8px;
 }
 
@@ -2059,14 +2059,14 @@ body::before {
 }
 
 .admin-detail-prog-label {
-    font-size: 0.625rem;
+    font-size: 1rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: #64748b;
 }
 
 .admin-detail-prog-pct {
-    font-size: 0.625rem;
+    font-size: 1rem;
     font-weight: 600;
     color: #22d3ee;
 }
@@ -2099,7 +2099,7 @@ body::before {
 }
 
 .admin-col-title-fuchsia {
-    font-size: 0.75rem;
+    font-size: 1rem;
     font-weight: 700;
     color: #d946ef;
     display: flex;
@@ -2113,7 +2113,7 @@ body::before {
 }
 
 .admin-col-title-cyan {
-    font-size: 0.75rem;
+    font-size: 1rem;
     font-weight: 700;
     color: #06b6d4;
     display: flex;
@@ -2136,7 +2136,7 @@ body::before {
     padding: 16px;
     border: 1px solid;
     position: relative;
-    font-size: 0.75rem;
+    font-size: 1rem;
 }
 
 .admin-achievement-done {
@@ -2162,11 +2162,11 @@ body::before {
     color: #e879f9;
     text-transform: uppercase;
     letter-spacing: 0.2em;
-    font-size: 0.625rem;
+    font-size: 1rem;
 }
 
 .admin-achievement-badge {
-    font-size: 0.5625rem;
+    font-size: 1rem;
     padding: 2px 8px;
     font-weight: 700;
     text-transform: uppercase;
@@ -2187,7 +2187,7 @@ body::before {
 }
 
 .admin-achievement-desc {
-    font-size: 0.6875rem;
+    font-size: 1rem;
     line-height: 1.625;
 }
 
@@ -2212,7 +2212,7 @@ body::before {
     background: rgba(0, 0, 0, 0.8);
     border-left: 2px solid;
     padding: 16px;
-    font-size: 0.75rem;
+    font-size: 1rem;
 }
 
 .admin-log-item-cyan {
@@ -2234,7 +2234,7 @@ body::before {
     color: #22d3ee;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    font-size: 0.625rem;
+    font-size: 1rem;
 }
 
 .admin-log-name-fuchsia {
@@ -2242,11 +2242,11 @@ body::before {
     color: #d946ef;
     text-transform: uppercase;
     letter-spacing: 0.1em;
-    font-size: 0.625rem;
+    font-size: 1rem;
 }
 
 .admin-log-time {
-    font-size: 0.5625rem;
+    font-size: 1rem;
     color: #475569;
 }
 
@@ -2260,7 +2260,7 @@ body::before {
 }
 
 .admin-log-section-label {
-    font-size: 0.625rem;
+    font-size: 1rem;
     text-transform: uppercase;
     letter-spacing: 0.2em;
     font-weight: 700;
@@ -2269,7 +2269,7 @@ body::before {
 }
 
 .admin-log-section-val {
-    font-size: 0.6875rem;
+    font-size: 1rem;
     line-height: 1.625;
 }
 
@@ -2289,7 +2289,7 @@ body::before {
 
     .btn-quest-primary,
     .btn-quest-secondary {
-        font-size: 0.75rem;
+        font-size: 1rem;
         padding: 10px 16px;
     }
 }
