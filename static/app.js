@@ -618,41 +618,12 @@ async function selectAdminPlayer(name, pState) {
             const logClass = isSide ? 'admin-log-item admin-log-item-fuchsia' : 'admin-log-item admin-log-item-cyan';
             const nameClass = isSide ? 'admin-log-name-fuchsia' : 'admin-log-name-cyan';
 
-            let detailsHtml = '';
-            if (log.not_understood !== "N/A") {
-                const hasDoubt = log.not_understood && log.not_understood.trim() !== ''
-                    && !['nenhuma', 'nada'].includes(log.not_understood.trim().toLowerCase());
-                const doubtClass = hasDoubt ? 'admin-doubt-highlight' : '';
-
-                detailsHtml = `
-                    <div class="admin-log-body">
-                        <div>
-                            <span class="admin-log-section-label" style="color:#22d3ee;">> Atividade:</span>
-                            <span class="admin-log-section-val" style="color:#cffafe;">${log.activity_text || ''}</span>
-                        </div>
-                        <div>
-                            <span class="admin-log-section-label" style="color:#155e75;">> Aprendizado:</span>
-                            <span class="admin-log-section-val" style="color:#cbd5e1;">${log.learned}</span>
-                        </div>
-                        <div>
-                            <span class="admin-log-section-label" style="color:rgba(239,68,68,0.8);">> Dúvidas:</span>
-                            <div class="${doubtClass} admin-log-section-val" style="${hasDoubt ? '' : 'color:#94a3b8;'}">${log.not_understood}</div>
-                        </div>
-                        <div>
-                            <span class="admin-log-section-label" style="color:rgba(16,185,129,0.8);">> Próximos Passos:</span>
-                            <span class="admin-log-section-val" style="color:#94a3b8;">${log.explore_more}</span>
-                        </div>
-                    </div>
-                `;
-            } else {
-                detailsHtml = `
-                    <div style="margin-top:8px;">
-                        <span style="color:#d946ef;font-size:0.5625rem;text-transform:uppercase;font-weight:bold;letter-spacing:0.2em;display:block;">> Conteúdo:</span>
-                        <span style="color:#cbd5e1;font-size:0.6875rem;">${log.learned}</span>
-                    </div>
-                `;
-            }
-
+            const safeLog = encodeURIComponent(JSON.stringify(log));
+            const detailsHtml = `
+                <div style="margin-top: 12px;">
+                    <button onclick="openAdminLogModal('${safeLog}')" class="btn-quest-secondary" style="font-size: 0.75rem; padding: 6px 12px; width: 100%;">Ler Relatório Completo</button>
+                </div>
+            `;
             logsContainer.innerHTML += `
                 <div class="${logClass}">
                     <div class="admin-log-header">
@@ -790,6 +761,72 @@ function showAchievementUnlocked(questName) {
         toast.classList.remove('show');
         setTimeout(() => toast.classList.add('hidden'), 500); // wait for transition
     }, 5000);
+}
+
+function closeAdminLogModal() {
+    document.getElementById('modal-admin-log').classList.add('hidden');
+}
+
+function openAdminLogModal(encodedLog) {
+    const log = JSON.parse(decodeURIComponent(encodedLog));
+    const isSide = log.level_name.includes("Side Quest");
+    
+    document.getElementById('modal-admin-log-title').innerText = log.level_name;
+    const contentBox = document.getElementById('modal-admin-log-content');
+    
+    // Set theme classes based on quest type
+    const modalBox = document.getElementById('modal-admin-log-box');
+    const modalTitle = document.getElementById('modal-admin-log-h3');
+    const modalSubtitle = document.getElementById('modal-admin-log-title');
+    const modalBtn = document.getElementById('modal-admin-log-btn');
+    
+    if (isSide) {
+        modalBox.className = 'modal-box modal-box-fuchsia';
+        modalTitle.className = 'modal-title modal-title-fuchsia';
+        modalSubtitle.className = 'modal-subtitle modal-subtitle-fuchsia';
+        modalBtn.className = 'btn-modal-submit btn-modal-submit-fuchsia';
+    } else {
+        modalBox.className = 'modal-box modal-box-cyan';
+        modalTitle.className = 'modal-title modal-title-cyan';
+        modalSubtitle.className = 'modal-subtitle modal-subtitle-cyan';
+        modalBtn.className = 'btn-modal-submit btn-modal-submit-cyan';
+    }
+
+    if (log.not_understood !== "N/A") {
+        const hasDoubt = log.not_understood && log.not_understood.trim() !== ''
+            && !['nenhuma', 'nada'].includes(log.not_understood.trim().toLowerCase());
+        const doubtClass = hasDoubt ? 'admin-doubt-highlight' : '';
+
+        contentBox.innerHTML = `
+            <div class="admin-log-body" style="background:transparent; padding:0; border:none; margin:0;">
+                <div style="margin-bottom:16px;">
+                    <span class="admin-log-section-label" style="color:${isSide ? '#e879f9' : '#22d3ee'};">> Atividade:</span>
+                    <span class="admin-log-section-val" style="color:#f8fafc; font-size:1rem;">${log.activity_text || ''}</span>
+                </div>
+                <div style="margin-bottom:16px;">
+                    <span class="admin-log-section-label" style="color:${isSide ? '#c026d3' : '#155e75'};">> Aprendizado:</span>
+                    <span class="admin-log-section-val" style="color:#e2e8f0; font-size:1rem;">${log.learned}</span>
+                </div>
+                <div style="margin-bottom:16px;">
+                    <span class="admin-log-section-label" style="color:rgba(239,68,68,0.8);">> Dúvidas:</span>
+                    <div class="${doubtClass} admin-log-section-val" style="font-size:1rem; ${hasDoubt ? '' : 'color:#94a3b8;'}">${log.not_understood}</div>
+                </div>
+                <div>
+                    <span class="admin-log-section-label" style="color:rgba(16,185,129,0.8);">> Próximos Passos:</span>
+                    <span class="admin-log-section-val" style="color:#cbd5e1; font-size:1rem;">${log.explore_more}</span>
+                </div>
+            </div>
+        `;
+    } else {
+        contentBox.innerHTML = `
+            <div style="margin-top:8px;">
+                <span style="color:#d946ef;font-size:0.75rem;text-transform:uppercase;font-weight:bold;letter-spacing:0.2em;display:block;margin-bottom:8px;">> Conteúdo Interceptado:</span>
+                <span style="color:#f8fafc;font-size:1rem;line-height:1.6;">${log.learned}</span>
+            </div>
+        `;
+    }
+    
+    document.getElementById('modal-admin-log').classList.remove('hidden');
 }
 
 window.onload = init;

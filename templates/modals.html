@@ -89,6 +89,26 @@
     </div>
 </div>
 
+<div id="modal-admin-log" class="modal-overlay hidden">
+    <div id="modal-admin-log-box" class="modal-box modal-box-cyan">
+        <div class="corner-tl"></div>
+        <div class="corner-tr"></div>
+        <div class="corner-bl"></div>
+        <div class="corner-br"></div>
+        <div style="flex-shrink:0;">
+            <h3 id="modal-admin-log-h3" class="modal-title modal-title-cyan">Leitura de Relatório</h3>
+            <p id="modal-admin-log-title" class="modal-subtitle modal-subtitle-cyan"></p>
+        </div>
+        <div class="modal-scroll" id="modal-admin-log-content" style="padding-top:16px;">
+            <!-- Renderizado via JS -->
+        </div>
+        <div class="modal-footer">
+            <button onclick="closeAdminLogModal()" class="btn-modal-cancel" style="margin-left:auto;">Fechar Leitura</button>
+            <button id="modal-admin-log-btn" onclick="closeAdminLogModal()" class="btn-modal-submit btn-modal-submit-cyan" style="display:none;">OK</button>
+        </div>
+    </div>
+</div>
+
 <!-- Achievement Toast -->
 <div id="achievement-toast" class="achievement-toast hidden">
     <div class="achievement-toast-content">
