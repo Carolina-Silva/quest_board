@@ -97,15 +97,22 @@ def get_team_status():
         if name != "Carol" and state.get("mission_accepted", False):
             player_quests_file = f"data/quests_{name}.json"
             max_level = 3
+            completed = state.get("current_level", 1) - 1
             if os.path.exists(player_quests_file):
                 with open(player_quests_file, "r", encoding="utf-8") as f:
                     try:
                         cfg = json.load(f)
                         if "main_quests" in cfg:
-                            max_level = len(cfg["main_quests"])
+                            main_quests = cfg["main_quests"]
+                            max_level = len(main_quests)
+                            if max_level > 0:
+                                last_quest = main_quests[-1]
+                                logs = state.get("diario_logs", [])
+                                if any(l.get("level_name") == last_quest.get("title") for l in logs):
+                                    completed = max_level
                     except:
                         pass
-            team.append({"name": name, "level": state.get("current_level", 1), "max_level": max_level})
+            team.append({"name": name, "level": state.get("current_level", 1), "completed": completed, "max_level": max_level})
     return {"team": team}
 
 @app.post("/api/accept-mission")

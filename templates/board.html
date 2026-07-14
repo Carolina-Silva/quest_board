@@ -6,12 +6,6 @@
             <p class="board-subtitle">Painel de Operações</p>
         </div>
         <div class="header-right">
-            <div class="progress-mini-wrap">
-                <span class="progress-mini-label">Seu Progresso</span>
-                <div class="progress-mini-bar-bg">
-                    <div id="progress-bar" class="progress-bar-fill" style="width:0%"></div>
-                </div>
-            </div>
             <div class="level-badge neon-box-cyan">
                 <span class="level-label">Nível Atual</span>
                 <span id="player-level" class="level-value glitch-hover">LVL 01</span>
@@ -40,9 +34,18 @@
 
         <!-- Squad Goal Section -->
         <div class="squad-box" style="margin-bottom:24px;">
+            <h2 class="squad-title" style="margin-bottom: 8px;">
+                <span><span class="animate-pulse">>></span> Meu Progresso</span>
+                <span id="my-goal-text" class="squad-goal-text" style="color: #22d3ee;">0%</span>
+            </h2>
+            <div class="team-progress-bg" style="margin-bottom: 16px;">
+                <div id="progress-bar" class="progress-bar-fill"
+                    style="width:0%; background: #22d3ee; box-shadow: 0 0 10px rgba(34,211,238,0.5);"></div>
+            </div>
+
             <h2 class="squad-title">
-                <span><span class="animate-pulse">>></span> Time</span>
-                <span id="team-goal-text" class="squad-goal-text">Progresso do time: 0%</span>
+                <span><span class="animate-pulse">>></span> Progresso do Time</span>
+                <span id="team-goal-text" class="squad-goal-text">0%</span>
             </h2>
             <div class="team-progress-bg">
                 <div id="team-progress-bar" class="team-progress-fill" style="width:0%"></div>
@@ -52,7 +55,7 @@
             </div>
             <div id="team-bonus-message" class="team-bonus hidden">
                 <span>★ SISTEMA PRINCIPAL DESBLOQUEADO ★</span>
-                TIME COMPLETO! TODAS CONCLUÍRAM A TRILHA!
+                TIME COMPLETO! TODOS CONCLUÍRAM A TRILHA!
             </div>
         </div>
 

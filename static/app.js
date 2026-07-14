@@ -191,20 +191,22 @@ function updateDashboard(data) {
     document.getElementById('player-level').innerText = `LVL 0${currentLevel}`;
 
     const totalMainQuests = questsConfig.main_quests ? questsConfig.main_quests.length : 3;
-    let progressPercentage = 0;
+    let completedQuests = currentLevel - 1;
     
     if (totalMainQuests > 0) {
-        progressPercentage = ((currentLevel - 1) / totalMainQuests) * 100;
-        progressPercentage += (1 / totalMainQuests) * 50;
-        
         const lastQuest = questsConfig.main_quests[totalMainQuests - 1];
         if (lastQuest && data.diario_logs.some(l => l.level_name === lastQuest.title)) {
-            progressPercentage = 100;
+            completedQuests = totalMainQuests;
         }
     }
+    
+    let progressPercentage = totalMainQuests > 0 ? (completedQuests / totalMainQuests) * 100 : 0;
     progressPercentage = Math.min(100, Math.round(progressPercentage));
 
-    document.getElementById('progress-bar').style.width = `${progressPercentage}%`;
+    const progressBar = document.getElementById('progress-bar');
+    const myGoalText = document.getElementById('my-goal-text');
+    if (progressBar) progressBar.style.width = `${progressPercentage}%`;
+    if (myGoalText) myGoalText.innerText = `${progressPercentage}%`;
 
     // ── Badge Config ────────────────────────────────────────────
     const BADGE_CONFIG = {
@@ -546,15 +548,14 @@ async function selectAdminPlayer(name, pState) {
     }
 
     const totalMainQuests = userQuestsConfig.main_quests ? userQuestsConfig.main_quests.length : 3;
-    let pct = 0;
+    let completedQuests = pState.current_level - 1;
     if (totalMainQuests > 0) {
-        pct = ((pState.current_level - 1) / totalMainQuests) * 100;
-        pct += (1 / totalMainQuests) * 50;
         const lastQuest = userQuestsConfig.main_quests[totalMainQuests - 1];
         if (lastQuest && pState.diario_logs.some(l => l.level_name === lastQuest.title)) {
-            pct = 100;
+            completedQuests = totalMainQuests;
         }
     }
+    let pct = totalMainQuests > 0 ? (completedQuests / totalMainQuests) * 100 : 0;
     pct = Math.min(100, Math.round(pct));
 
     document.getElementById('admin-detail-progress-percent').innerText = `${pct}%`;
@@ -659,7 +660,7 @@ async function updateTeamStatus() {
         if (!container) return;
         container.innerHTML = '';
 
-        let totalLevels = 0;
+        let totalCompleted = 0;
         let maxLevelsPossible = 0;
 
         if (team.length === 0) {
@@ -668,7 +669,7 @@ async function updateTeamStatus() {
         }
 
         team.forEach(player => {
-            totalLevels += player.level;
+            totalCompleted += player.completed || 0;
             maxLevelsPossible += player.max_level || 3;
             const isMe = player.name === getPlayerName();
             const borderColor = isMe ? '1px solid rgba(6,182,212,0.5)' : '1px solid #1e293b';
@@ -689,7 +690,7 @@ async function updateTeamStatus() {
             `;
         });
 
-        let percent = maxLevelsPossible > 0 ? (totalLevels / maxLevelsPossible) * 100 : 0;
+        let percent = maxLevelsPossible > 0 ? (totalCompleted / maxLevelsPossible) * 100 : 0;
         percent = Math.min(100, Math.round(percent));
 
         const progressBar = document.getElementById('team-progress-bar');
