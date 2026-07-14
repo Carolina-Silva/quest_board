@@ -100,6 +100,11 @@ def get_team_status():
 
 @app.post("/api/accept-mission")
 def accept_mission(entry: AcceptMission):
+    if entry.player_name != "Carol":
+        player_quests_file = f"data/quests_{entry.player_name}.json"
+        if not os.path.exists(player_quests_file):
+            raise HTTPException(status_code=403, detail="Acesso negado: Operador não cadastrado.")
+            
     data = load_all_data()
     if entry.player_name not in data:
         data[entry.player_name] = {
@@ -119,12 +124,13 @@ def get_quests(player_name: str = None):
     if not player_name:
         raise HTTPException(status_code=400, detail="player_name is required")
         
+    if player_name == "Carol":
+        return {"main_quests": [], "side_quests": []}
+
     player_quests_file = f"data/quests_{player_name}.json"
     
     if not os.path.exists(player_quests_file):
-        if not os.path.exists("data/quests.json"):
-            raise HTTPException(status_code=404, detail="Base quests.json not found")
-        shutil.copy("data/quests.json", player_quests_file)
+        raise HTTPException(status_code=403, detail="Acesso negado: Operador não cadastrado.")
         
     with open(player_quests_file, "r", encoding="utf-8") as f:
         return json.load(f)
@@ -179,4 +185,8 @@ def next_level(entry: NextLevelEntry):
 
 @app.get("/")
 def get_ui(request: Request):
-    return templates.TemplateResponse(request=request, name="index.html")
+    return templates.TemplateResponse(
+        request=request, 
+        name="index.html", 
+        context={"v": datetime.now().timestamp()}
+    )
