@@ -42,7 +42,7 @@
         <div class="modal-footer">
             <button onclick="closeDiario()" class="btn-modal-cancel">Abortar</button>
             <button id="btn-submit-diario" onclick="submitDiario()" class="btn-modal-submit btn-modal-submit-cyan">
-                Transmissão Criptografada
+                Enviar Relatório
             </button>
         </div>
     </div>
@@ -85,6 +85,17 @@
         <div class="modal-footer modal-footer-fuchsia">
             <button onclick="closeSideQuest()" class="btn-modal-cancel">Abortar</button>
             <button onclick="submitSideQuest()" class="btn-modal-submit btn-modal-submit-fuchsia">Processar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Achievement Toast -->
+<div id="achievement-toast" class="achievement-toast hidden">
+    <div class="achievement-toast-content">
+        <div id="toast-icon" class="toast-icon">🏆</div>
+        <div class="toast-text">
+            <span class="toast-title glitch-hover">ACHIEVEMENT UNLOCKED</span>
+            <span id="toast-quest-name" class="toast-quest-name">Nome da Quest</span>
         </div>
     </div>
 </div>

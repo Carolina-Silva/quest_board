@@ -20,7 +20,13 @@ function logout() {
     init();
 }
 
+let feedInterval = null;
+
 async function init() {
+    if (!feedInterval) {
+        updateFeed();
+        feedInterval = setInterval(updateFeed, 10000);
+    }
     const playerName = getPlayerName();
 
     const welcomeScreen = document.getElementById('welcome-screen');
@@ -361,7 +367,7 @@ function openDiario(missionName, missionId) {
             el.removeAttribute('readonly');
             el.classList.remove('modal-textarea-readonly');
         });
-        btn.innerText = 'Transmissão Criptografada';
+        btn.innerText = 'Enviar Relatório';
         btn.className = 'btn-modal-submit btn-modal-submit-cyan';
         btn.onclick = () => submitDiario();
     }
@@ -471,7 +477,9 @@ async function submitSideQuest() {
         })
     });
 
+    const questNameToShow = activeSideQuestName;
     closeSideQuest();
+    showAchievementUnlocked(questNameToShow);
     init();
 }
 
@@ -727,6 +735,52 @@ function switchTab(tabName) {
         tabMain.className = 'tab-btn inactive';
         tabSide.className = 'tab-btn active';
     }
+}
+
+async function updateFeed() {
+    const container = document.getElementById('global-feed-container');
+    if (!container) return;
+
+    try {
+        const res = await fetch('/api/feed');
+        if (!res.ok) return;
+        const feed = await res.json();
+        
+        if (feed.length === 0) {
+            container.innerHTML = '<p style="color:#64748b;font-family:monospace;font-size:0.75rem;">> SINAL NÃO DETECTADO...</p>';
+            return;
+        }
+
+        container.innerHTML = feed.reverse().map(item => `
+            <div class="feed-item feed-type-${item.type}">
+                <span class="feed-time">[${item.timestamp.split(' ')[1]}]</span>
+                <span class="feed-player">${item.player_name}</span>
+                <span class="feed-action">${item.action}</span>
+            </div>
+        `).join('');
+    } catch (e) {
+        console.error("Feed error:", e);
+    }
+}
+
+function showAchievementUnlocked(questName) {
+    const toast = document.getElementById('achievement-toast');
+    const nameEl = document.getElementById('toast-quest-name');
+    if (!toast || !nameEl) return;
+
+    nameEl.innerText = questName;
+    toast.classList.remove('hidden');
+    
+    // Trigger reflow to restart animation if needed
+    void toast.offsetWidth;
+    
+    toast.classList.add('show');
+
+    // Auto hide after 5 seconds
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.classList.add('hidden'), 500); // wait for transition
+    }, 5000);
 }
 
 window.onload = init;

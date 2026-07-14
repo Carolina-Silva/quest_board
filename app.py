@@ -59,6 +59,38 @@ def save_all_data(data: dict) -> None:
     with open(DATA_FILE, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=4, ensure_ascii=False)
 
+FEED_FILE = "data/feed.json"
+
+def add_feed_event(player_name: str, action: str, type: str):
+    if player_name == "Carol": return
+    feed = []
+    if os.path.exists(FEED_FILE):
+        with open(FEED_FILE, "r", encoding="utf-8") as f:
+            try:
+                feed = json.load(f)
+            except:
+                pass
+    feed.append({
+        "timestamp": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+        "player_name": player_name,
+        "action": action,
+        "type": type
+    })
+    if len(feed) > 50:
+        feed = feed[-50:]
+    with open(FEED_FILE, "w", encoding="utf-8") as f:
+        json.dump(feed, f, indent=4, ensure_ascii=False)
+
+@app.get("/api/feed")
+def get_feed():
+    if not os.path.exists(FEED_FILE):
+        return []
+    with open(FEED_FILE, "r", encoding="utf-8") as f:
+        try:
+            return json.load(f)
+        except:
+            return []
+
 def get_player_state(player_name: str, data: dict = None) -> dict:
     if data is None:
         data = load_all_data()
@@ -134,6 +166,7 @@ def accept_mission(entry: AcceptMission):
         data[entry.player_name]["mission_accepted"] = True
         
     save_all_data(data)
+    add_feed_event(entry.player_name, "entrou na rede operacional.", "login")
     return {"status": "success"}
 
 @app.get("/api/quests")
@@ -170,6 +203,7 @@ def post_diario(entry: DiarioEntry):
         "timestamp": datetime.now().strftime("%d/%m/%Y %H:%M")
     })
     save_all_data(data)
+    add_feed_event(entry.player_name, "transmitiu um relatório de missão.", "main_quest")
     return {"status": "success"}
 
 @app.post("/api/side-quest")
@@ -189,6 +223,7 @@ def post_side_quest(entry: SideQuestEntry):
         "timestamp": datetime.now().strftime("%d/%m/%Y %H:%M")
     })
     save_all_data(data)
+    add_feed_event(entry.player_name, f"desbloqueou uma conquista opcional: {entry.quest_name}!", "side_quest")
     return {"status": "success"}
 
 @app.post("/api/next-level")
@@ -211,6 +246,7 @@ def next_level(entry: NextLevelEntry):
     if data[entry.player_name]["current_level"] < max_level:
         data[entry.player_name]["current_level"] += 1
         save_all_data(data)
+        add_feed_event(entry.player_name, "avançou para a próxima fase da Trilha Principal!", "level_up")
         return {"status": "success"}
     raise HTTPException(status_code=400, detail="Nível máximo atingido")
 
