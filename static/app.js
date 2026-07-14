@@ -75,11 +75,17 @@ async function acceptMission() {
         return;
     }
 
-    await fetch('/api/accept-mission', {
+    const res = await fetch('/api/accept-mission', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ player_name: name })
     });
+
+    if (!res.ok) {
+        const err = await res.json();
+        alert(err.detail || 'Erro de autenticação.');
+        return;
+    }
 
     localStorage.setItem('player_name', name);
     init();
@@ -223,8 +229,8 @@ function updateDashboard(data) {
 
         let badgesHtml = `
             <div style="width:100%;display:flex;align-items:center;justify-content:space-between;">
-                <span style="font-size:11px;color:#d946ef;font-family:monospace;text-transform:uppercase;letter-spacing:0.15em;">🏅 Condecorações</span>
-                <span style="font-size:9px;font-family:monospace;color:#475569;border:1px solid #1e293b;padding:2px 8px;">${earnedCount}/${totalBadges} desbloqueadas</span>
+                <span style="font-size:14px;color:#d946ef;font-family:monospace;text-transform:uppercase;letter-spacing:0.15em;">🏅 Condecorações</span>
+                <span style="font-size:16px;font-family:monospace;color:#475569;border:1px solid #1e293b;padding:2px 8px;">${earnedCount}/${totalBadges}</span>
             </div>
             <div style="display:flex;flex-wrap:wrap;gap:16px;width:100%;margin-top:12px;">
         `;
@@ -237,23 +243,23 @@ function updateDashboard(data) {
 
             if (isEarned) {
                 badgesHtml += `
-                    <div class="badge-card" style="display:flex;flex-direction:column;align-items:center;gap:6px;width:100px;cursor:default;" title="${sq.name}">
-                        <div style="width:76px;height:76px;clip-path:${hexClip};background:${cfg.colorBg};display:flex;align-items:center;justify-content:center;box-shadow:${cfg.colorGlow};outline:2px solid ${cfg.colorBorder};outline-offset:-2px;">
-                            <span style="font-size:28px;line-height:1;">${cfg.icon}</span>
+                    <div class="badge-card" style="display:flex;flex-direction:column;align-items:center;gap:8px;width:140px;cursor:pointer;" title="${sq.name}">
+                        <div class="badge-icon-container" style="width:140px;height:140px;clip-path:${hexClip};background:${cfg.colorBg};display:flex;align-items:center;justify-content:center;box-shadow:${cfg.colorGlow};outline:3px solid ${cfg.colorBorder};outline-offset:-3px;">
+                            <span style="font-size:60px;line-height:1;">${cfg.icon}</span>
                         </div>
-                        <span style="font-size:8.5px;font-family:monospace;font-weight:bold;letter-spacing:0.12em;text-transform:uppercase;color:${cfg.colorTitle};text-align:center;line-height:1.2;">${cfg.title}</span>
-                        <span style="font-size:7.5px;font-family:monospace;font-weight:bold;text-transform:uppercase;letter-spacing:0.1em;color:${cfg.rarityColor};background:${cfg.rarityBg};border:1px solid ${cfg.colorBorder}44;padding:1px 6px;">${cfg.rarity}</span>
-                        <span style="font-size:7.5px;font-family:monospace;color:${cfg.colorTagline};text-align:center;line-height:1.3;">${cfg.tagline}</span>
+                        <span style="font-size:16px;font-family:monospace;font-weight:bold;letter-spacing:0.12em;text-transform:uppercase;color:${cfg.colorTitle};text-align:center;line-height:1.2;">${cfg.title}</span>
+                        <span style="font-size:12px;font-family:monospace;font-weight:bold;text-transform:uppercase;letter-spacing:0.1em;color:${cfg.rarityColor};background:${cfg.rarityBg};border:1px solid ${cfg.colorBorder}44;padding:2px 8px;">${cfg.rarity}</span>
+                        <span style="font-size:12px;font-family:monospace;color:${cfg.colorTagline};text-align:center;line-height:1.3;">${cfg.tagline}</span>
                     </div>
                 `;
             } else {
                 badgesHtml += `
-                    <div class="badge-locked" style="display:flex;flex-direction:column;align-items:center;gap:6px;width:100px;cursor:default;" title="Complete a missão para desbloquear">
-                        <div style="width:76px;height:76px;clip-path:${hexClip};background:rgba(15,23,42,0.8);display:flex;align-items:center;justify-content:center;outline:2px solid #334155;outline-offset:-2px;">
-                            <span style="font-size:28px;line-height:1;">🔒</span>
+                    <div class="badge-locked" style="display:flex;flex-direction:column;align-items:center;gap:8px;width:140px;cursor:default;" title="Complete a missão para desbloquear">
+                        <div class="badge-icon-container" style="width:140px;height:140px;clip-path:${hexClip};background:rgba(15,23,42,0.8);display:flex;align-items:center;justify-content:center;outline:3px solid #334155;outline-offset:-3px;">
+                            <span style="font-size:60px;line-height:1;">🔒</span>
                         </div>
-                        <span style="font-size:8.5px;font-family:monospace;font-weight:bold;letter-spacing:0.12em;color:#334155;text-transform:uppercase;">???</span>
-                        <span style="font-size:7.5px;font-family:monospace;color:#1e293b;border:1px solid #1e293b;padding:1px 6px;text-transform:uppercase;letter-spacing:0.1em;">BLOQUEADA</span>
+                        <span style="font-size:16px;font-family:monospace;font-weight:bold;letter-spacing:0.12em;color:#334155;text-transform:uppercase;">???</span>
+                        <span style="font-size:12px;font-family:monospace;color:#1e293b;border:1px solid #1e293b;padding:2px 8px;text-transform:uppercase;letter-spacing:0.1em;">BLOQUEADA</span>
                     </div>
                 `;
             }
@@ -267,14 +273,14 @@ function updateDashboard(data) {
     const logsContainer = document.getElementById('logs-history');
     logsContainer.innerHTML = '';
     if (data.diario_logs.length === 0) {
-        logsContainer.innerHTML = `<p style="font-style:italic;color:#475569;text-align:center;padding:16px 0;font-size:10px;text-transform:uppercase;letter-spacing:0.2em;">Você ainda não enviou nenhum relatório.</p>`;
+        logsContainer.innerHTML = `<p style="font-style:italic;color:#a6bbd8;text-align:center;padding:16px 0;font-size:14px;text-transform:uppercase;letter-spacing:0.2em;">Você ainda não enviou nenhum relatório.</p>`;
     } else {
         [...data.diario_logs].reverse().forEach(log => {
             const isSideQuest = log.level_name.includes("Side Quest");
             const logEl = document.createElement('div');
             logEl.className = `log-item ${isSideQuest ? 'log-item-side' : ''}`;
 
-            let contentHtml = `<p style="margin-top:4px;"><span style="color:#64748b;font-size:10px;">> OUT:</span> <span style="color:#cbd5e1;font-size:0.75rem;">${log.learned}</span></p>`;
+            let contentHtml = `<p style="margin-top:4px;"><span style="color:#64748b;font-size:14px;">> OUT:</span> <span style="color:#cbd5e1;font-size:0.75rem;">${log.learned}</span></p>`;
             if (log.not_understood !== "N/A") {
                 contentHtml = `
                     <div class="log-item-body">
@@ -625,7 +631,7 @@ async function updateTeamStatus() {
         let maxLevelsPossible = team.length * 3;
 
         if (team.length === 0) {
-            container.innerHTML = `<p style="grid-column:1/-1;font-size:10px;color:#64748b;font-family:monospace;text-transform:uppercase;">Esquadrão vazio.</p>`;
+            container.innerHTML = `<p style="grid-column:1/-1;font-size:14px;color:#64748b;font-family:monospace;text-transform:uppercase;">Esquadrão vazio.</p>`;
             return;
         }
 
@@ -642,10 +648,10 @@ async function updateTeamStatus() {
 
             container.innerHTML += `
                 <div style="background:rgba(0,0,0,0.5);padding:8px;border:${borderColor};box-shadow:${boxShadow};display:flex;align-items:center;justify-content:space-between;font-family:monospace;opacity:${opacity};">
-                    <span style="font-size:10px;font-weight:bold;color:#cbd5e1;text-transform:uppercase;letter-spacing:0.2em;display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                    <span style="font-size:14px;font-weight:bold;color:#cbd5e1;text-transform:uppercase;letter-spacing:0.2em;display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
                         ${pulse} ${player.name}
                     </span>
-                    <span style="font-size:9px;padding:2px 4px;border:1px solid ${lvlBorder};background:${lvlBg};color:${lvlColor};">LVL 0${player.level}</span>
+                    <span style="font-size:16px;padding:2px 4px;border:1px solid ${lvlBorder};background:${lvlBg};color:${lvlColor};">LVL 0${player.level}</span>
                 </div>
             `;
         });
