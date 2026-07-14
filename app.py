@@ -95,7 +95,17 @@ def get_team_status():
     team = []
     for name, state in data.items():
         if name != "Carol" and state.get("mission_accepted", False):
-            team.append({"name": name, "level": state.get("current_level", 1)})
+            player_quests_file = f"data/quests_{name}.json"
+            max_level = 3
+            if os.path.exists(player_quests_file):
+                with open(player_quests_file, "r", encoding="utf-8") as f:
+                    try:
+                        cfg = json.load(f)
+                        if "main_quests" in cfg:
+                            max_level = len(cfg["main_quests"])
+                    except:
+                        pass
+            team.append({"name": name, "level": state.get("current_level", 1), "max_level": max_level})
     return {"team": team}
 
 @app.post("/api/accept-mission")
@@ -125,6 +135,9 @@ def get_quests(player_name: str = None):
         raise HTTPException(status_code=400, detail="player_name is required")
         
     if player_name == "Carol":
+        if os.path.exists("data/quests.json"):
+            with open("data/quests.json", "r", encoding="utf-8") as f:
+                return json.load(f)
         return {"main_quests": [], "side_quests": []}
 
     player_quests_file = f"data/quests_{player_name}.json"
@@ -177,7 +190,18 @@ def next_level(entry: NextLevelEntry):
     if entry.player_name not in data:
         raise HTTPException(status_code=404, detail="Player not found")
         
-    if data[entry.player_name]["current_level"] < 3:
+    player_quests_file = f"data/quests_{entry.player_name}.json"
+    max_level = 3
+    if os.path.exists(player_quests_file):
+        with open(player_quests_file, "r", encoding="utf-8") as f:
+            try:
+                cfg = json.load(f)
+                if "main_quests" in cfg:
+                    max_level = len(cfg["main_quests"])
+            except:
+                pass
+                
+    if data[entry.player_name]["current_level"] < max_level:
         data[entry.player_name]["current_level"] += 1
         save_all_data(data)
         return {"status": "success"}

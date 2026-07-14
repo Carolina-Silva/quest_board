@@ -190,11 +190,19 @@ function updateDashboard(data) {
     const currentLevel = data.current_level;
     document.getElementById('player-level').innerText = `LVL 0${currentLevel}`;
 
+    const totalMainQuests = questsConfig.main_quests ? questsConfig.main_quests.length : 3;
     let progressPercentage = 0;
-    if (currentLevel === 1) progressPercentage = 15;
-    else if (currentLevel === 2) progressPercentage = 50;
-    else if (currentLevel === 3) progressPercentage = 85;
-    if (data.diario_logs.some(l => l.level_name.includes("Level 3"))) progressPercentage = 100;
+    
+    if (totalMainQuests > 0) {
+        progressPercentage = ((currentLevel - 1) / totalMainQuests) * 100;
+        progressPercentage += (1 / totalMainQuests) * 50;
+        
+        const lastQuest = questsConfig.main_quests[totalMainQuests - 1];
+        if (lastQuest && data.diario_logs.some(l => l.level_name === lastQuest.title)) {
+            progressPercentage = 100;
+        }
+    }
+    progressPercentage = Math.min(100, Math.round(progressPercentage));
 
     document.getElementById('progress-bar').style.width = `${progressPercentage}%`;
 
@@ -511,7 +519,7 @@ async function renderAdminDashboard() {
     }
 }
 
-function selectAdminPlayer(name, pState) {
+async function selectAdminPlayer(name, pState) {
     selectedAdminPlayerName = name;
 
     document.querySelectorAll('.admin-player-btn').forEach(btn => {
@@ -525,11 +533,29 @@ function selectAdminPlayer(name, pState) {
     document.getElementById('admin-detail-name').innerText = `AGENTE: ${name}`;
     document.getElementById('admin-detail-level').innerText = `LVL 0${pState.current_level}`;
 
+    let userQuestsConfig = questsConfig;
+    if (getPlayerName() === 'Carol') {
+        try {
+            const res = await fetch(`/api/quests?player_name=${encodeURIComponent(name)}`);
+            if (res.ok) {
+                userQuestsConfig = await res.json();
+            }
+        } catch (e) {
+            console.error("Failed to load user quests", e);
+        }
+    }
+
+    const totalMainQuests = userQuestsConfig.main_quests ? userQuestsConfig.main_quests.length : 3;
     let pct = 0;
-    if (pState.current_level === 1) pct = 15;
-    else if (pState.current_level === 2) pct = 50;
-    else if (pState.current_level === 3) pct = 85;
-    if (pState.diario_logs.some(l => l.level_name.includes("Level 3"))) pct = 100;
+    if (totalMainQuests > 0) {
+        pct = ((pState.current_level - 1) / totalMainQuests) * 100;
+        pct += (1 / totalMainQuests) * 50;
+        const lastQuest = userQuestsConfig.main_quests[totalMainQuests - 1];
+        if (lastQuest && pState.diario_logs.some(l => l.level_name === lastQuest.title)) {
+            pct = 100;
+        }
+    }
+    pct = Math.min(100, Math.round(pct));
 
     document.getElementById('admin-detail-progress-percent').innerText = `${pct}%`;
     document.getElementById('admin-detail-progress-bar').style.width = `${pct}%`;
@@ -538,23 +564,29 @@ function selectAdminPlayer(name, pState) {
     const achievementsContainer = document.getElementById('admin-detail-achievements');
     achievementsContainer.innerHTML = '';
 
-    questsConfig.side_quests.forEach(quest => {
-        const isCompleted = pState.side_quests_completed.includes(quest.name);
-        const cardClass = isCompleted ? 'admin-achievement-card admin-achievement-done' : 'admin-achievement-card admin-achievement-pending';
-        const badgeClass = isCompleted ? 'admin-achievement-badge admin-achievement-badge-done' : 'admin-achievement-badge admin-achievement-badge-pending';
-        const badgeText = isCompleted ? 'CONCLUÍDO ✅' : 'EM ANDAMENTO';
-        const descClass = isCompleted ? 'admin-achievement-desc admin-achievement-desc-done' : 'admin-achievement-desc admin-achievement-desc-pending';
+    const sideQuestsList = userQuestsConfig.side_quests || [];
 
-        achievementsContainer.innerHTML += `
-            <div class="${cardClass}">
-                <div class="admin-achievement-header">
-                    <span class="admin-achievement-name">${quest.name}</span>
-                    <span class="${badgeClass}">${badgeText}</span>
+    if (sideQuestsList.length === 0) {
+        achievementsContainer.innerHTML = `<p style="font-style:italic;color:#64748b;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;padding:16px 0;">Nenhuma missão opcional definida.</p>`;
+    } else {
+        sideQuestsList.forEach(quest => {
+            const isCompleted = pState.side_quests_completed.includes(quest.name);
+            const cardClass = isCompleted ? 'admin-achievement-card admin-achievement-done' : 'admin-achievement-card admin-achievement-pending';
+            const badgeClass = isCompleted ? 'admin-achievement-badge admin-achievement-badge-done' : 'admin-achievement-badge admin-achievement-badge-pending';
+            const badgeText = isCompleted ? 'CONCLUÍDO ✅' : 'EM ANDAMENTO';
+            const descClass = isCompleted ? 'admin-achievement-desc admin-achievement-desc-done' : 'admin-achievement-desc admin-achievement-desc-pending';
+
+            achievementsContainer.innerHTML += `
+                <div class="${cardClass}">
+                    <div class="admin-achievement-header">
+                        <span class="admin-achievement-name">${quest.name}</span>
+                        <span class="${badgeClass}">${badgeText}</span>
+                    </div>
+                    <p class="${descClass}">${quest.description}</p>
                 </div>
-                <p class="${descClass}">${quest.description}</p>
-            </div>
-        `;
-    });
+            `;
+        });
+    }
 
     // Logs
     const logsContainer = document.getElementById('admin-detail-logs');
@@ -628,7 +660,7 @@ async function updateTeamStatus() {
         container.innerHTML = '';
 
         let totalLevels = 0;
-        let maxLevelsPossible = team.length * 3;
+        let maxLevelsPossible = 0;
 
         if (team.length === 0) {
             container.innerHTML = `<p style="grid-column:1/-1;font-size:14px;color:#64748b;font-family:monospace;text-transform:uppercase;">Esquadrão vazio.</p>`;
@@ -637,6 +669,7 @@ async function updateTeamStatus() {
 
         team.forEach(player => {
             totalLevels += player.level;
+            maxLevelsPossible += player.max_level || 3;
             const isMe = player.name === getPlayerName();
             const borderColor = isMe ? '1px solid rgba(6,182,212,0.5)' : '1px solid #1e293b';
             const boxShadow = isMe ? '0 0 8px rgba(34,211,238,0.2)' : 'none';
