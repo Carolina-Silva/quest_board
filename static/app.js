@@ -107,7 +107,16 @@ function renderQuests(data) {
     questsConfig.main_quests.forEach(quest => {
         let cardClass, badgeClass, badgeText, titleClass;
 
-        if (quest.id < currentLevel) {
+        const totalMainQuests = questsConfig.main_quests ? questsConfig.main_quests.length : 3;
+        let isCompleted = quest.id < currentLevel;
+        
+        if (quest.id === currentLevel && quest.id === totalMainQuests) {
+            if (data.diario_logs.some(l => l.level_name === quest.title)) {
+                isCompleted = true;
+            }
+        }
+
+        if (isCompleted) {
             cardClass = 'quest-card quest-card-done';
             badgeClass = 'quest-badge quest-badge-done';
             badgeText = 'VERIFICADO ✅';
@@ -124,7 +133,7 @@ function renderQuests(data) {
             titleClass = 'quest-title-locked';
         }
 
-        let corners = quest.id === currentLevel
+        let corners = (!isCompleted && quest.id === currentLevel)
             ? `<div class="corner-tl"></div><div class="corner-tr"></div><div class="corner-bl"></div><div class="corner-br"></div>`
             : '';
 
@@ -141,7 +150,7 @@ function renderQuests(data) {
         // Button
         let btnHtml = '';
         if (quest.id !== 0 && quest.id <= currentLevel) {
-            if (quest.id < currentLevel) {
+            if (isCompleted) {
                 btnHtml = `<button onclick="openDiario('${quest.title}', ${quest.id})" class="btn-quest-secondary">Ver meu envio anterior</button>`;
             } else {
                 btnHtml = `<button onclick="openDiario('${quest.title}', ${quest.id})" class="btn-quest-primary">${quest.btn_text || 'Finalizar e Enviar Log'}</button>`;
