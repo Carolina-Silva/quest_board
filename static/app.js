@@ -408,6 +408,26 @@ function updateDashboard(data) {
             }
         });
 
+        // Add secret quests that the player has earned, but are not in the config
+        const configQuestNames = allSideQuests.map(q => q.name);
+        const secretQuests = data.side_quests_completed.filter(sq => !configQuestNames.includes(sq));
+        
+        secretQuests.forEach(sq => {
+            const cfg = BADGE_CONFIG[sq];
+            if (!cfg) return;
+            
+            badgesHtml += `
+                <div class="badge-card" style="display:flex;flex-direction:column;align-items:center;gap:8px;width:140px;cursor:default;" title="${sq}">
+                    <div class="badge-icon-container" style="width:140px;height:140px;clip-path:${hexClip};background:${cfg.colorBg};display:flex;align-items:center;justify-content:center;box-shadow:${cfg.colorGlow};outline:3px solid ${cfg.colorBorder};outline-offset:-3px;">
+                        <span style="font-size:60px;line-height:1;">${cfg.icon}</span>
+                    </div>
+                    <span style="font-size:16px;font-family:monospace;font-weight:bold;letter-spacing:0.12em;text-transform:uppercase;color:${cfg.colorTitle};text-align:center;line-height:1.2;">${cfg.title}</span>
+                    <span style="font-size:12px;font-family:monospace;font-weight:bold;text-transform:uppercase;letter-spacing:0.1em;color:${cfg.rarityColor};background:${cfg.rarityBg};border:1px solid ${cfg.colorBorder}44;padding:2px 8px;">${cfg.rarity}</span>
+                    <span style="font-size:12px;font-family:monospace;color:${cfg.colorTagline};text-align:center;line-height:1.3;">${cfg.tagline}</span>
+                </div>
+            `;
+        });
+
         badgesHtml += `</div>`;
         badgesContainer.innerHTML = badgesHtml;
     }
@@ -644,7 +664,7 @@ async function renderAdminDashboard() {
             ${isActive ? '<div style="position:absolute;top:0;left:0;width:6px;height:6px;border-top:1px solid #22d3ee;border-left:1px solid #22d3ee;"></div>' : ''}
             <div class="admin-player-btn-row">
                 <span style="font-weight:bold;text-transform:uppercase;letter-spacing:0.1em;">${name}</span>
-                <span class="admin-player-lvl">LVL 0${pState.current_level}</span>
+                <span class="admin-player-lvl">LVL ${pState.current_level}</span>
             </div>
         `;
         btn.onclick = () => selectAdminPlayer(name, pState);
@@ -668,7 +688,7 @@ async function selectAdminPlayer(name, pState) {
     document.getElementById('admin-player-detail').classList.remove('hidden');
 
     document.getElementById('admin-detail-name').innerText = `AGENTE: ${name}`;
-    document.getElementById('admin-detail-level').innerText = `LVL 0${pState.current_level}`;
+    document.getElementById('admin-detail-level').innerText = `LVL ${pState.current_level}`;
 
     let userQuestsConfig = questsConfig;
     if (getPlayerName() === 'Carol') {
