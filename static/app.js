@@ -89,6 +89,24 @@ const BADGE_CONFIG = {
     },
 };
 
+function showCustomAlert(message) {
+    const elMessage = document.getElementById('modal-custom-alert-message');
+    const modal = document.getElementById('modal-custom-alert');
+    if (elMessage && modal) {
+        elMessage.innerText = message;
+        modal.classList.remove('hidden');
+    } else {
+        window.alert(message);
+    }
+}
+
+function closeCustomAlert() {
+    const modal = document.getElementById('modal-custom-alert');
+    if (modal) {
+        modal.classList.add('hidden');
+    }
+}
+
 function getPlayerName() {
     return localStorage.getItem('player_name');
 }
@@ -164,7 +182,7 @@ async function init() {
 async function acceptMission() {
     const name = document.getElementById('player-name-input').value.trim();
     if (!name) {
-        alert('Por favor, insira seu codinome antes de entrar.');
+        showCustomAlert('Por favor, insira seu codinome antes de entrar.');
         return;
     }
 
@@ -176,7 +194,7 @@ async function acceptMission() {
         setTimeout(() => {
             body.style.animation = "";
             body.style.backgroundColor = "#020617";
-            alert("ACESSO NEGADO: A SUPERVISÃO FOI NOTIFICADA DA SUA TENTATIVA DE INVASÃO.");
+            showCustomAlert("ACESSO NEGADO: A SUPERVISÃO FOI NOTIFICADA DA SUA TENTATIVA DE INVASÃO.");
         }, 1000);
         return;
     }
@@ -189,7 +207,7 @@ async function acceptMission() {
 
     if (!res.ok) {
         const err = await res.json();
-        alert(err.detail || 'Erro de autenticação.');
+        showCustomAlert(err.detail || 'Erro de autenticação.');
         return;
     }
 
@@ -586,7 +604,7 @@ async function submitDiario() {
     const playerName = getPlayerName();
 
     if (!activity || !learned || !notUnderstood || !exploreMore) {
-        alert('Preencha todos os campos antes de enviar!');
+        showCustomAlert('Preencha todos os campos antes de enviar!');
         return;
     }
 
@@ -644,7 +662,7 @@ async function submitSideQuest() {
     const playerName = getPlayerName();
 
     if (!text) {
-        alert('Escreva suas anotações antes de enviar!');
+        showCustomAlert('Escreva suas anotações antes de enviar!');
         return;
     }
 
@@ -670,7 +688,7 @@ async function renderAdminDashboard() {
     const adminName = getPlayerName();
     const res = await fetch(`/api/admin/all-players?admin_name=${encodeURIComponent(adminName)}`);
     if (res.status !== 200) {
-        alert('Efetue login novamente como Carol.');
+        showCustomAlert('Efetue login novamente como Carol.');
         logout();
         return;
     }
@@ -1145,7 +1163,7 @@ function acceptFinalMission() {
             type: 'platinum'
         })
     });
-    alert('Missão Final Aceita com Sucesso! 🌟');
+    showCustomAlert('Missão Final Aceita com Sucesso! Nos vemos na próxima fase 🌟');
     closeCredits();
 }
 
@@ -1168,7 +1186,7 @@ async function rejectFinalMission() {
             delivery_text: 'Teve a audácia de recusar a missão final do sistema.'
         })
     });
-    alert('Missão Final Recusada. Fim da linha... ou não?');
+    showCustomAlert('Missão Final Recusada. Você é um rebelde nato? 🏴‍☠️');
     closeCredits();
     showAchievementUnlocked('Rebelde Sem Causa 🏴‍☠️');
     init();
@@ -1316,7 +1334,7 @@ function triggerDoNotClick() {
                     delivery_text: 'Eu cliquei no botão proibido e quase destruí a base.'
                 })
             });
-            alert("Brincadeira! Mas o aviso estava claro. Pelo menos você ganhou algo com isso.");
+            showCustomAlert("Brincadeira! Mas o aviso estava claro. Pelo menos você ganhou algo com isso.");
             showAchievementUnlocked('Curiosidade Matou o Gato 🐈');
             init();
         }
@@ -1329,11 +1347,11 @@ let titleClickTimer = null;
 function handleTitleClick() {
     titleClickCount++;
     if (titleClickTimer) clearTimeout(titleClickTimer);
-    
+
     titleClickTimer = setTimeout(() => {
         titleClickCount = 0;
     }, 2000);
-    
+
     if (titleClickCount >= 5) {
         titleClickCount = 0;
         grantNarcisistaBadge();

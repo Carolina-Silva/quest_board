@@ -188,3 +188,25 @@
         </div>
     </div>
 </div>
+
+<!-- Custom Alert Modal -->
+<div id="modal-custom-alert" class="modal-overlay hidden" style="z-index: 9999;">
+    <div class="modal-box modal-box-cyan" style="max-width: 400px; padding: 20px;">
+        <div class="corner-tl" style="border-color: #eead22;"></div>
+        <div class="corner-tr" style="border-color: #eead22;"></div>
+        <div class="corner-bl" style="border-color: #eead22;"></div>
+        <div class="corner-br" style="border-color: #eead22;"></div>
+        
+        <div style="flex-shrink:0; text-align: center;">
+            <h3 class="modal-title neon-text-cyan" style="font-size: 1.25rem; margin-bottom: 12px;">[ ALERTA ]</h3>
+        </div>
+
+        <div class="modal-scroll" style="margin-top: 12px; text-align: center; max-height: unset;">
+            <p id="modal-custom-alert-message" class="modal-subtitle text-cyan-100" style="font-size: 1rem; margin-bottom: 0;"></p>
+        </div>
+
+        <div class="modal-footer" style="justify-content: center; margin-top: 20px; border-top: none; padding-top: 0;">
+            <button onclick="closeCustomAlert()" class="btn-modal-submit btn-modal-submit-cyan" style="width: 120px; font-size: 0.9rem; padding: 8px;">Entendido</button>
+        </div>
+    </div>
+</div>
