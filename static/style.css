@@ -1659,7 +1659,7 @@ body::before {
 .modal-box {
     background: #020617;
     border: 1px solid;
-    max-width: 36rem;
+    max-width: 50rem;
     width: 100%;
     padding: 24px;
     position: relative;
@@ -1676,7 +1676,7 @@ body::before {
 .modal-box-fuchsia {
     border-color: rgba(217, 70, 239, 0.5);
     box-shadow: 0 0 20px rgba(232, 121, 249, 0.4), inset 0 0 15px rgba(232, 121, 249, 0.1);
-    max-width: 32rem;
+    max-width: 50rem;
 }
 
 .modal-title {
