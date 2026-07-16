@@ -109,7 +109,7 @@ function renderQuests(data) {
 
         const totalMainQuests = questsConfig.main_quests ? questsConfig.main_quests.length : 3;
         let isCompleted = quest.id < currentLevel;
-        
+
         if (quest.id === currentLevel && quest.id === totalMainQuests) {
             if (data.diario_logs.some(l => l.level_name === quest.title)) {
                 isCompleted = true;
@@ -207,21 +207,93 @@ function updateDashboard(data) {
 
     const totalMainQuests = questsConfig.main_quests ? questsConfig.main_quests.length : 3;
     let completedQuests = currentLevel - 1;
-    
+
     if (totalMainQuests > 0) {
         const lastQuest = questsConfig.main_quests[totalMainQuests - 1];
         if (lastQuest && data.diario_logs.some(l => l.level_name === lastQuest.title)) {
             completedQuests = totalMainQuests;
         }
     }
-    
+
     let progressPercentage = totalMainQuests > 0 ? (completedQuests / totalMainQuests) * 100 : 0;
     progressPercentage = Math.min(100, Math.round(progressPercentage));
 
     const progressBar = document.getElementById('progress-bar');
     const myGoalText = document.getElementById('my-goal-text');
+    
+    const earnedCountForPlat = data.side_quests_completed.length;
+    const totalBadgesForPlat = questsConfig.side_quests ? questsConfig.side_quests.length : 3;
+    const isMainCompleted = progressPercentage === 100;
+    const isPlatinado = isMainCompleted && (earnedCountForPlat >= totalBadgesForPlat);
+
     if (progressBar) progressBar.style.width = `${progressPercentage}%`;
-    if (myGoalText) myGoalText.innerText = `${progressPercentage}%`;
+    
+    let platMsgEl = document.getElementById('platina-message-dynamic');
+    if (!platMsgEl && progressBar) {
+        platMsgEl = document.createElement('div');
+        platMsgEl.id = 'platina-message-dynamic';
+        platMsgEl.style.cssText = 'text-align: center; font-size: 14px; margin-bottom: 16px; font-weight: bold; margin-top: -8px;';
+        progressBar.parentElement.after(platMsgEl);
+    }
+
+    if (myGoalText) {
+        if (isPlatinado) {
+            myGoalText.innerHTML = `100% <span style="color:#fbbf24; text-shadow: 0 0 10px #fbbf24; margin-left: 8px; animation: pulse 2s infinite;">🏆 PLATINADO 🏆</span>`;
+            if (progressBar) {
+                progressBar.style.background = '#fbbf24';
+                progressBar.style.boxShadow = '0 0 15px rgba(251,191,36,0.8)';
+            }
+            if (platMsgEl) {
+                platMsgEl.innerHTML = `<span style="color:#fbbf24; text-shadow: 0 0 8px rgba(251,191,36,0.8);">PARABÉNS! VOCÊ COMPLETOU 100% DA TRILHA E PLATINOU! 🏆</span>`;
+            }
+
+            const platKey = `plat_shown_${data.player_name}`;
+            if (!localStorage.getItem(platKey) && typeof confetti === 'function') {
+                localStorage.setItem(platKey, 'true');
+                triggerConfettiEffect('platinum');
+                fetch('/api/feed-event', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        player_name: data.player_name,
+                        action: 'PLATINOU O SISTEMA! 🏆 Todas as missões concluídas!',
+                        type: 'platinum'
+                    })
+                });
+            }
+        } else if (isMainCompleted) {
+            myGoalText.innerHTML = `100% <span style="color:#22d3ee; margin-left: 8px;">(MISSÕES PRINCIPAIS OK)</span>`;
+            if (progressBar) {
+                progressBar.style.background = '#22d3ee';
+                progressBar.style.boxShadow = '0 0 10px rgba(34,211,238,0.5)';
+            }
+            if (platMsgEl) {
+                platMsgEl.innerHTML = `<span style="color:#e879f9; text-shadow: 0 0 8px rgba(232,121,249,0.8); animation: pulse 2s infinite;">>> VOCÊ CONCLUIU O CORE! COMPLETE AS MISSÕES EXTRAS PARA PLATINAR! 🏆 <<</span>`;
+            }
+
+            const mainDoneKey = `main_done_shown_${data.player_name}`;
+            if (!localStorage.getItem(mainDoneKey) && typeof confetti === 'function') {
+                localStorage.setItem(mainDoneKey, 'true');
+                triggerConfettiEffect('main');
+                fetch('/api/feed-event', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        player_name: data.player_name,
+                        action: 'CONCLUIU O CORE! 🌟 Missões principais finalizadas!',
+                        type: 'core_done'
+                    })
+                });
+            }
+        } else {
+            myGoalText.innerText = `${progressPercentage}%`;
+            if (progressBar) {
+                progressBar.style.background = '#22d3ee';
+                progressBar.style.boxShadow = '0 0 10px rgba(34,211,238,0.5)';
+            }
+            if (platMsgEl) platMsgEl.innerHTML = '';
+        }
+    }
 
     // ── Badge Config ────────────────────────────────────────────
     const BADGE_CONFIG = {
@@ -242,6 +314,36 @@ function updateDashboard(data) {
             rarity: 'LENDÁRIO', colorBorder: '#e879f9', colorBg: 'rgba(217,70,239,0.12)',
             colorGlow: '0 0 22px rgba(232,121,249,0.55), inset 0 0 14px rgba(232,121,249,0.12)',
             colorTitle: '#f0abfc', colorTagline: '#e879f970', rarityColor: '#e879f9', rarityBg: 'rgba(74,4,78,0.7)',
+        },
+        'Repatriação de Artefato 📖': {
+            icon: '📖', title: 'ARQUEÓLOGO', tagline: 'Resgatou um artefato perdido',
+            rarity: 'INCOMUM', colorBorder: '#6366f1', colorBg: 'rgba(99,102,241,0.12)',
+            colorGlow: '0 0 22px rgba(99,102,241,0.55), inset 0 0 14px rgba(99,102,241,0.12)',
+            colorTitle: '#a5b4fc', colorTagline: '#6366f170', rarityColor: '#6366f1', rarityBg: 'rgba(49,46,129,0.7)',
+        },
+        'Reconhecimento de Arquivo 📸': {
+            icon: '📸', title: 'ARQUIVISTA', tagline: 'Documentou o arquivo central',
+            rarity: 'RARO', colorBorder: '#10b981', colorBg: 'rgba(16,185,129,0.12)',
+            colorGlow: '0 0 22px rgba(16,185,129,0.55), inset 0 0 14px rgba(16,185,129,0.12)',
+            colorTitle: '#6ee7b7', colorTagline: '#10b98170', rarityColor: '#10b981', rarityBg: 'rgba(6,78,59,0.7)',
+        },
+        'Reconhecimento de Perímetro Externo ☀️': {
+            icon: '☀️', title: 'ANDARILHO', tagline: 'Sobreviveu à radiação solar',
+            rarity: 'ÉPICO', colorBorder: '#f97316', colorBg: 'rgba(249,115,22,0.12)',
+            colorGlow: '0 0 22px rgba(249,115,22,0.55), inset 0 0 14px rgba(249,115,22,0.12)',
+            colorTitle: '#fdba74', colorTagline: '#f9731670', rarityColor: '#f97316', rarityBg: 'rgba(124,45,18,0.7)',
+        },
+        'Transmissão de Código de Conduta 👍': {
+            icon: '👍', title: 'É ISSO JOVEM', tagline: 'Validou o código com sucesso',
+            rarity: 'LENDÁRIO', colorBorder: '#f43f5e', colorBg: 'rgba(244,63,94,0.12)',
+            colorGlow: '0 0 22px rgba(244,63,94,0.55), inset 0 0 14px rgba(244,63,94,0.12)',
+            colorTitle: '#fda4af', colorTagline: '#f43f5e70', rarityColor: '#f43f5e', rarityBg: 'rgba(136,19,55,0.7)',
+        },
+        'Projeto Paralelo: Operação Sirius 🌌': {
+            icon: '🌌', title: 'COMANDANTE', tagline: 'Executou a Operação Sirius',
+            rarity: 'MÍTICO', colorBorder: '#a855f7', colorBg: 'rgba(168,85,247,0.12)',
+            colorGlow: '0 0 22px rgba(168,85,247,0.55), inset 0 0 14px rgba(168,85,247,0.12)',
+            colorTitle: '#d8b4fe', colorTagline: '#a855f770', rarityColor: '#a855f7', rarityBg: 'rgba(88,28,135,0.7)',
         },
     };
 
@@ -725,7 +827,7 @@ async function updateFeed() {
         const res = await fetch('/api/feed');
         if (!res.ok) return;
         const feed = await res.json();
-        
+
         if (feed.length === 0) {
             container.innerHTML = '<p style="color:#64748b;font-family:monospace;font-size:0.75rem;">> SINAL NÃO DETECTADO...</p>';
             return;
@@ -750,10 +852,10 @@ function showAchievementUnlocked(questName) {
 
     nameEl.innerText = questName;
     toast.classList.remove('hidden');
-    
+
     // Trigger reflow to restart animation if needed
     void toast.offsetWidth;
-    
+
     toast.classList.add('show');
 
     // Auto hide after 5 seconds
@@ -770,16 +872,16 @@ function closeAdminLogModal() {
 function openAdminLogModal(encodedLog) {
     const log = JSON.parse(decodeURIComponent(encodedLog));
     const isSide = log.level_name.includes("Side Quest");
-    
+
     document.getElementById('modal-admin-log-title').innerText = log.level_name;
     const contentBox = document.getElementById('modal-admin-log-content');
-    
+
     // Set theme classes based on quest type
     const modalBox = document.getElementById('modal-admin-log-box');
     const modalTitle = document.getElementById('modal-admin-log-h3');
     const modalSubtitle = document.getElementById('modal-admin-log-title');
     const modalBtn = document.getElementById('modal-admin-log-btn');
-    
+
     if (isSide) {
         modalBox.className = 'modal-box modal-box-fuchsia';
         modalTitle.className = 'modal-title modal-title-fuchsia';
@@ -825,8 +927,45 @@ function openAdminLogModal(encodedLog) {
             </div>
         `;
     }
-    
+
     document.getElementById('modal-admin-log').classList.remove('hidden');
+}
+
+function triggerConfettiEffect(type) {
+    if (typeof confetti !== 'function') return;
+
+    if (type === 'main') {
+        confetti({
+            particleCount: 150,
+            spread: 100,
+            origin: { y: 0.6 },
+            colors: ['#22d3ee', '#06b6d4', '#e879f9']
+        });
+    } else if (type === 'platinum') {
+        const duration = 5000;
+        const animationEnd = Date.now() + duration;
+        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10000 };
+
+        function randomInRange(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        const interval = setInterval(function() {
+            const timeLeft = animationEnd - Date.now();
+            if (timeLeft <= 0) {
+                return clearInterval(interval);
+            }
+            const particleCount = 50 * (timeLeft / duration);
+            confetti(Object.assign({}, defaults, { particleCount,
+                origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+                colors: ['#fbbf24', '#fde68a', '#d97706', '#22d3ee']
+            }));
+            confetti(Object.assign({}, defaults, { particleCount,
+                origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+                colors: ['#fbbf24', '#fde68a', '#d97706', '#22d3ee']
+            }));
+        }, 250);
+    }
 }
 
 window.onload = init;

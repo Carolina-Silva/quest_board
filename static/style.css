@@ -2331,6 +2331,10 @@ body::before {
 .feed-type-side_quest .feed-action { color: #fdf4ff; text-shadow: 0 0 5px rgba(232,121,249,0.5); }
 .feed-type-level_up .feed-player { color: #fbbf24; }
 .feed-type-level_up .feed-action { color: #fef3c7; text-shadow: 0 0 5px rgba(251,191,36,0.5); }
+.feed-type-core_done .feed-player { color: #22d3ee; text-shadow: 0 0 5px rgba(34,211,238,0.5); }
+.feed-type-core_done .feed-action { color: #e879f9; text-shadow: 0 0 5px rgba(232,121,249,0.5); }
+.feed-type-platinum .feed-player { color: #fbbf24; text-shadow: 0 0 8px rgba(251,191,36,0.8); font-weight: bold; }
+.feed-type-platinum .feed-action { color: #fde68a; font-weight: bold; text-shadow: 0 0 8px rgba(251,191,36,0.8); }
 
 /* --- Achievement Toast --- */
 .achievement-toast {

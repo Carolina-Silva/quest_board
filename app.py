@@ -81,6 +81,16 @@ def add_feed_event(player_name: str, action: str, type: str):
     with open(FEED_FILE, "w", encoding="utf-8") as f:
         json.dump(feed, f, indent=4, ensure_ascii=False)
 
+class FeedEventEntry(BaseModel):
+    player_name: str
+    action: str
+    type: str
+
+@app.post("/api/feed-event")
+def post_feed_event(entry: FeedEventEntry):
+    add_feed_event(entry.player_name, entry.action, entry.type)
+    return {"status": "success"}
+
 @app.get("/api/feed")
 def get_feed():
     if not os.path.exists(FEED_FILE):
