@@ -221,7 +221,7 @@ async function init() {
 async function acceptMission() {
     const name = document.getElementById('player-name-input').value.trim();
     if (!name) {
-        showCustomAlert('Por favor, insira seu codinome antes de entrar.');
+        showCustomAlert('Vai entrar sem nome? Acha que eu sou adivinha? Coloca seu codinome aí.');
         return;
     }
 
@@ -233,7 +233,7 @@ async function acceptMission() {
         setTimeout(() => {
             body.style.animation = "";
             body.style.backgroundColor = "#020617";
-            showCustomAlert("ACESSO NEGADO: A SUPERVISÃO FOI NOTIFICADA DA SUA TENTATIVA DE INVASÃO.");
+            showCustomAlert("ACESSO NEGADO: Achou mesmo que seria tão fácil? A supervisão já sabe o que você fez.");
         }, 1000);
         return;
     }
@@ -246,7 +246,7 @@ async function acceptMission() {
 
     if (!res.ok) {
         const err = await res.json();
-        showCustomAlert(err.detail || 'Erro de autenticação.');
+        showCustomAlert(err.detail || 'Deu ruim na autenticação. Tenta de novo que uma hora vai.');
         return;
     }
 
@@ -599,12 +599,24 @@ function openDiario(missionName, missionId) {
         btn.className = 'btn-modal-submit btn-modal-submit-fuchsia-alt';
         btn.onclick = () => enableDiarioEdit();
     } else {
+        const notUnderstoodPlaceholders = [
+            "Pode confessar perguntou pro GPT...",
+            "Seja sincero, ninguém vai achar ruim vc falar mal de tudo.",
+            "Se você diz que entendeu tudo, eu finjo que acredito.",
+            "Será que vou conseguir responder a duvida?"
+        ];
+
         fields.forEach(f => {
             const el = document.getElementById(f);
             el.value = '';
             el.removeAttribute('readonly');
             el.classList.remove('modal-textarea-readonly');
         });
+
+        const nuEl = document.getElementById('form-not-understood');
+        if (nuEl) {
+            nuEl.placeholder = notUnderstoodPlaceholders[Math.floor(Math.random() * notUnderstoodPlaceholders.length)];
+        }
         btn.innerText = 'Enviar Relatório';
         btn.className = 'btn-modal-submit btn-modal-submit-cyan';
         btn.onclick = () => submitDiario();
@@ -643,7 +655,13 @@ async function submitDiario() {
     const playerName = getPlayerName();
 
     if (!activity || !learned || !notUnderstood || !exploreMore) {
-        showCustomAlert('Preencha todos os campos antes de enviar!');
+        const errorMsgs = [
+            "Acha que o sistema é vidente? Escreve alguma coisa nas caixas vazias.",
+            "Relatório com tinta invisível não é aceito pela supervisão.",
+            "Eu posso processar dados rápido, mas não leio mentes. Preencha tudo.",
+            "O botão de enviar não funciona com telepatia ainda.Preencha tudo."
+        ];
+        showCustomAlert(errorMsgs[Math.floor(Math.random() * errorMsgs.length)]);
         return;
     }
 
@@ -721,7 +739,12 @@ async function submitSideQuest() {
     const playerName = getPlayerName();
 
     if (!text) {
-        showCustomAlert('Escreva suas anotações antes de enviar!');
+        const errorMsgs = [
+            "Até para missões extras precisamos de evidências textuais.",
+            "Uma página em branco não ganha condecoração.",
+            "Escreve alguma coisa! Nem que seja 'hello world'!!!."
+        ];
+        showCustomAlert(errorMsgs[Math.floor(Math.random() * errorMsgs.length)]);
         return;
     }
 
@@ -747,7 +770,7 @@ async function renderAdminDashboard() {
     const adminName = getPlayerName();
     const res = await fetch(`/api/admin/all-players?admin_name=${encodeURIComponent(adminName)}`);
     if (res.status !== 200) {
-        showCustomAlert('Efetue login novamente como Carol.');
+        showCustomAlert('Ops, a chefia caiu. Efetue login novamente como Carol.');
         logout();
         return;
     }
@@ -1245,7 +1268,7 @@ async function rejectFinalMission() {
             delivery_text: 'Teve a audácia de recusar a missão final do sistema.'
         })
     });
-    showCustomAlert('Missão Final Recusada. Você é um rebelde nato? 🏴‍☠️');
+    showCustomAlert('Correu da Missão Final? Sério? Bom, a escolha é sua... rebelde 🏴‍☠️');
     closeCredits();
     showAchievementUnlocked('Rebelde Sem Causa 🏴‍☠️');
     init();
@@ -1393,7 +1416,7 @@ function triggerDoNotClick() {
                     delivery_text: 'Eu cliquei no botão proibido e quase destruí a base.'
                 })
             });
-            showCustomAlert("Brincadeira! Mas o aviso estava claro. Pelo menos você ganhou algo com isso.");
+            showCustomAlert("Por que vocês nunca ouvem quando está escrito 'NÃO CLIQUE'? Pelo menos ganhou uma badge.");
             showAchievementUnlocked('Curiosidade Matou o Gato 🐈');
             init();
         }
@@ -1430,3 +1453,20 @@ async function grantNarcisistaBadge() {
     showAchievementUnlocked('O Narcisista 🪞');
     init();
 }
+
+// ── Easter Egg: Aba Abandonada ──────────────────────────────
+let originalTitle = document.title;
+document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+        const missYouMsgs = [
+            "Volte a trabalhar! 👀",
+            "Cadê o relatório? 📝",
+            "A supervisão está vendo... 📡",
+            "A missão te aguarda! ⏳",
+            "Ei, não foge! 🏃‍♂️💨"
+        ];
+        document.title = missYouMsgs[Math.floor(Math.random() * missYouMsgs.length)];
+    } else {
+        document.title = originalTitle;
+    }
+});
