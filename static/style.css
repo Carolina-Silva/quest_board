@@ -2335,6 +2335,8 @@ body::before {
 .feed-type-core_done .feed-action { color: #e879f9; text-shadow: 0 0 5px rgba(232,121,249,0.5); }
 .feed-type-platinum .feed-player { color: #fbbf24; text-shadow: 0 0 8px rgba(251,191,36,0.8); font-weight: bold; }
 .feed-type-platinum .feed-action { color: #fde68a; font-weight: bold; text-shadow: 0 0 8px rgba(251,191,36,0.8); }
+.feed-type-spy .feed-player { color: #ef4444; }
+.feed-type-spy .feed-action { color: #fca5a5; text-shadow: 0 0 5px rgba(239, 68, 68, 0.5); }
 
 /* --- Achievement Toast --- */
 .achievement-toast {
@@ -2556,4 +2558,60 @@ body::before {
 .btn-boss-reject:hover {
     background: #ef4444;
     color: #000;
+}
+
+/* --- Spy Modal --- */
+.modal-box-spy {
+    border-color: rgba(239, 68, 68, 0.5);
+    box-shadow: 0 0 20px rgba(239, 68, 68, 0.4), inset 0 0 15px rgba(239, 68, 68, 0.15);
+    background: rgba(10, 0, 0, 0.95);
+}
+
+.modal-spy-log {
+    background: rgba(69, 10, 10, 0.3);
+    border: 1px solid #7f1d1d;
+    padding: 12px;
+    color: #fca5a5;
+    font-size: 0.9rem;
+    font-family: 'Courier New', Courier, monospace;
+    min-height: 80px;
+    margin-bottom: 16px;
+}
+
+.modal-spy-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 12px;
+    border: 1px dashed #7f1d1d;
+    min-height: 80px;
+}
+
+.spy-badge-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #450a0a;
+    padding: 6px 12px;
+    border: 1px solid #dc2626;
+    border-radius: 4px;
+}
+
+.btn-spy {
+    background: transparent;
+    border: 1px solid #dc2626;
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 0.75rem;
+    padding: 4px 8px;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    font-weight: bold;
+}
+
+.btn-spy:hover {
+    background: #dc2626;
+    color: #000;
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
 }

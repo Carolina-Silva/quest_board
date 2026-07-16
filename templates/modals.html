@@ -114,6 +114,37 @@
     </div>
 </div>
 
+<!-- Spy Modal -->
+<div id="modal-spy" class="modal-overlay hidden">
+    <div class="modal-box modal-box-spy">
+        <div class="corner-tl" style="border-color: #ef4444;"></div>
+        <div class="corner-tr" style="border-color: #ef4444;"></div>
+        <div class="corner-bl" style="border-color: #ef4444;"></div>
+        <div class="corner-br" style="border-color: #ef4444;"></div>
+        
+        <div style="flex-shrink:0;">
+            <h3 class="modal-title" style="color: #ef4444;">[ SINAL INTERCEPTADO ]</h3>
+            <p id="modal-spy-title" class="modal-subtitle" style="color: #fca5a5; border-color: #7f1d1d;"></p>
+        </div>
+
+        <div class="modal-scroll" style="margin-top: 16px;">
+            <div class="modal-label" style="color: #ef4444;">>> Último Relatório Encontrado:</div>
+            <div id="modal-spy-log" class="modal-spy-log">
+                <!-- log dinâmico -->
+            </div>
+
+            <div class="modal-label" style="color: #ef4444; margin-top: 16px;">>> Condecorações Secretas (Descriptografadas):</div>
+            <div id="modal-spy-badges" class="modal-spy-badges">
+                <!-- badges dinâmicos -->
+            </div>
+        </div>
+
+        <div class="modal-footer" style="border-top-color: #7f1d1d;">
+            <button onclick="closeSpyModal()" class="btn-modal-cancel" style="border-color: #ef4444; color: #fca5a5; width: 100%; background: #450a0a;">Encerrar Invasão</button>
+        </div>
+    </div>
+</div>
+
 <!-- Credits Overlay -->
 <div id="credits-overlay" class="credits-overlay hidden">
     <div class="credits-scroll-container">

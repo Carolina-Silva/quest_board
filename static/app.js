@@ -16,7 +16,7 @@ const BADGE_CONFIG = {
         colorTitle: '#7dd3fc', colorTagline: '#38bdf870', rarityColor: '#38bdf8', rarityBg: 'rgba(12,74,110,0.7)',
     },
     'A Ideia Maluca 💡': {
-        icon: '⚡', title: 'INOVADORA', tagline: 'Propôs uma feature que muda tudo',
+        icon: '💡', title: 'INOVADORA', tagline: 'Propôs uma feature que muda tudo',
         rarity: 'ÉPICO', colorBorder: '#fbbf24', colorBg: 'rgba(245,158,11,0.12)',
         colorGlow: '0 0 22px rgba(251,191,36,0.55), inset 0 0 14px rgba(251,191,36,0.12)',
         colorTitle: '#fde68a', colorTagline: '#fbbf2470', rarityColor: '#fbbf24', rarityBg: 'rgba(78,45,0,0.7)',
@@ -56,6 +56,12 @@ const BADGE_CONFIG = {
         rarity: 'MÍTICO', colorBorder: '#a855f7', colorBg: 'rgba(168,85,247,0.12)',
         colorGlow: '0 0 22px rgba(168,85,247,0.55), inset 0 0 14px rgba(168,85,247,0.12)',
         colorTitle: '#d8b4fe', colorTagline: '#a855f770', rarityColor: '#a855f7', rarityBg: 'rgba(88,28,135,0.7)',
+    },
+    'Bisbilhoteiro Profissional 👀': {
+        icon: '🕵️', title: 'ESPIÃO', tagline: 'Curioso de plantão',
+        rarity: 'SECRETO', colorBorder: '#ef4444', colorBg: 'rgba(239,68,68,0.12)',
+        colorGlow: '0 0 22px rgba(239,68,68,0.55), inset 0 0 14px rgba(239,68,68,0.12)',
+        colorTitle: '#fca5a5', colorTagline: '#ef444470', rarityColor: '#ef4444', rarityBg: 'rgba(127,29,29,0.7)',
     },
 };
 
@@ -276,7 +282,8 @@ function updateDashboard(data) {
     const myGoalText = document.getElementById('my-goal-text');
 
     const earnedCountForPlat = data.side_quests_completed.length;
-    const totalBadgesForPlat = questsConfig.side_quests ? questsConfig.side_quests.length : 3;
+    const baseTotalForPlat = questsConfig.side_quests ? questsConfig.side_quests.length : 3;
+    const totalBadgesForPlat = Math.max(earnedCountForPlat, baseTotalForPlat);
     const isMainCompleted = progressPercentage === 100;
     const isPlatinado = isMainCompleted && (earnedCountForPlat >= totalBadgesForPlat);
 
@@ -353,7 +360,8 @@ function updateDashboard(data) {
     const badgesContainer = document.getElementById('badges-container');
     if (badgesContainer) {
         const earnedCount = data.side_quests_completed.length;
-        const totalBadges = questsConfig.side_quests ? questsConfig.side_quests.length : 3;
+        const baseTotal = questsConfig.side_quests ? questsConfig.side_quests.length : 3;
+        const totalBadges = Math.max(earnedCount, baseTotal);
         const hexClip = 'polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)';
 
         let badgesHtml = `
@@ -771,13 +779,17 @@ async function updateTeamStatus() {
             const lvlColor = isMe ? '#22d3ee' : '#94a3b8';
             const lvlBorder = isMe ? '#155e75' : '#334155';
             const pulse = isMe ? `<span class="animate-pulse" style="display:inline-block;width:6px;height:6px;background:#22d3ee;border-radius:50%;"></span>` : '';
+            const spyBtn = !isMe ? `<button onclick="spyOnPlayer('${player.name}')" class="btn-spy" title="Interceptar Sinal">👁️ HACK</button>` : '';
 
             container.innerHTML += `
                 <div style="background:rgba(0,0,0,0.5);padding:8px;border:${borderColor};box-shadow:${boxShadow};display:flex;align-items:center;justify-content:space-between;font-family:monospace;opacity:${opacity};">
                     <span style="font-size:14px;font-weight:bold;color:#cbd5e1;text-transform:uppercase;letter-spacing:0.2em;display:flex;align-items:center;gap:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
                         ${pulse} ${player.name}
                     </span>
-                    <span style="font-size:16px;padding:2px 4px;border:1px solid ${lvlBorder};background:${lvlBg};color:${lvlColor};">LVL 0${player.level}</span>
+                    <div style="display:flex; gap: 8px; align-items:center;">
+                        ${spyBtn}
+                        <span style="font-size:16px;padding:2px 4px;border:1px solid ${lvlBorder};background:${lvlBg};color:${lvlColor};">LVL 0${player.level}</span>
+                    </div>
                 </div>
             `;
         });
@@ -1045,6 +1057,80 @@ function rejectFinalMission() {
     });
     alert('Missão Final Recusada. Fim da linha... ou não?');
     closeCredits();
+}
+
+async function spyOnPlayer(targetName) {
+    try {
+        const res = await fetch(`/api/status?player_name=${targetName}`);
+        if (!res.ok) return;
+        const state = await res.json();
+
+        document.getElementById('modal-spy-title').innerText = `ALVO: AGENTE ${targetName}`;
+
+        const logContainer = document.getElementById('modal-spy-log');
+        if (state.diario_logs && state.diario_logs.length > 0) {
+            const lastLog = state.diario_logs[state.diario_logs.length - 1];
+            logContainer.innerHTML = `
+                <div style="color: #ef4444; font-weight: bold; margin-bottom: 8px;">[${lastLog.timestamp}] ${lastLog.level_name}</div>
+                <div>${lastLog.activity_text || lastLog.learned || 'Sem registro de texto detalhado.'}</div>
+            `;
+        } else {
+            logContainer.innerHTML = '<span style="color:#991b1b; font-style:italic;">Nenhum registro encontrado no diário do alvo.</span>';
+        }
+
+        const badgesContainer = document.getElementById('modal-spy-badges');
+        badgesContainer.innerHTML = '';
+        if (state.side_quests_completed && state.side_quests_completed.length > 0) {
+            state.side_quests_completed.forEach(sq => {
+                const cfg = BADGE_CONFIG[sq];
+                if (cfg) {
+                    badgesContainer.innerHTML += `
+                        <div class="spy-badge-item">
+                            <span style="font-size: 1.2rem;">${cfg.icon}</span>
+                            <span style="color: #fca5a5; font-size: 0.75rem;">${cfg.title}</span>
+                        </div>
+                    `;
+                }
+            });
+        } else {
+            badgesContainer.innerHTML = '<span style="color:#991b1b; font-style:italic;">Nenhuma criptografia (condecoração) adicional detectada.</span>';
+        }
+
+        document.getElementById('modal-spy').classList.remove('hidden');
+
+        fetch('/api/feed-event', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                player_name: getPlayerName(),
+                action: `interceptou o sinal e está bisbilhotando o progresso do Agente ${targetName}! 👀`,
+                type: 'spy'
+            })
+        });
+
+        const me = globalTeamData.find(p => p.name === getPlayerName());
+        if (me && (!me.side_quests || !me.side_quests.includes('Bisbilhoteiro Profissional 👀'))) {
+            fetch('/api/side-quest', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    player_name: getPlayerName(),
+                    quest_name: 'Bisbilhoteiro Profissional 👀',
+                    delivery_text: 'Descoberta secreta: invadiu o terminal de um colega.'
+                })
+            }).then(() => {
+                // Forçar atualização silenciosa
+                updateTeamStatus();
+            });
+        }
+
+    } catch (e) {
+        console.error("Erro ao espionar", e);
+    }
+}
+
+function closeSpyModal() {
+    document.getElementById('modal-spy').classList.add('hidden');
 }
 
 window.onload = init;
