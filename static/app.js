@@ -87,6 +87,18 @@ const BADGE_CONFIG = {
         colorGlow: '0 0 22px rgba(236,72,153,0.55), inset 0 0 14px rgba(236,72,153,0.12)',
         colorTitle: '#fbcfe8', colorTagline: '#f472b6', rarityColor: '#ec4899', rarityBg: 'rgba(131,24,67,0.7)',
     },
+    'O Tagarela 📜': {
+        icon: '📜', title: 'O TAGARELA', tagline: 'Escreveu um livro no relatório',
+        rarity: 'SECRETO', colorBorder: '#14b8a6', colorBg: 'rgba(20,184,166,0.12)',
+        colorGlow: '0 0 22px rgba(20,184,166,0.55), inset 0 0 14px rgba(20,184,166,0.12)',
+        colorTitle: '#99f6e4', colorTagline: '#5eead4', rarityColor: '#14b8a6', rarityBg: 'rgba(13,148,136,0.7)',
+    },
+    'O Minimalista 🤏': {
+        icon: '🧊', title: 'O MINIMALISTA', tagline: 'Economizou caracteres preciosos',
+        rarity: 'SECRETO', colorBorder: '#64748b', colorBg: 'rgba(100,116,139,0.12)',
+        colorGlow: '0 0 22px rgba(100,116,139,0.55), inset 0 0 14px rgba(100,116,139,0.12)',
+        colorTitle: '#cbd5e1', colorTagline: '#94a3b8', rarityColor: '#64748b', rarityBg: 'rgba(51,65,85,0.7)',
+    },
 };
 
 function showCustomAlert(message) {
@@ -123,6 +135,32 @@ function logout() {
 }
 
 let feedInterval = null;
+
+// ── Diretriz do Dia ─────────────────────────────────────────
+function renderDailyDirective() {
+    const textEl = document.getElementById('daily-directive-text');
+    const dateEl = document.getElementById('daily-directive-date');
+    if (!textEl || !dateEl) return;
+
+    const directives = [
+        "O aprendizado não é uma linha reta. Assim como o meu trajeto do quarto para a cama.",
+        "Cada bug em produção hoje é uma batalha de vocês. A minha única luta é contra os mosquitos.",
+        "Não existe erro, existe a oportunidade de vocês aprenderem a se virar sem mim.",
+        "Você não precisa entender tudo de uma vez. Só precisa entender o suficiente para não me ligar.",
+        "Colaboração não é fraqueza. Colaborem entre si para resolver os BOs sem me envolver.",
+        "O sistema é complexo. Vocês são mais. Confio na equipe.",
+        "Refatorar é respeitar quem vem depois. E quem vem depois da férias, sou eu. Caprichem.",
+        "Sistemas difíceis formam operadores extraordinários. Boa sorte, equipe.",
+        "Às vezes, a melhor solução técnica é simplesmente limpar o cache. É exatamente o que estou fazendo com meu cérebro.",
+        "Minha capacidade de pensar em frases acabou. Imagine uma bem motivadora aqui. 🙃"
+    ];
+
+    const now = new Date();
+    const index = Math.floor(Math.random() * directives.length);
+
+    textEl.innerText = `"${directives[index]}"`;
+    dateEl.innerText = now.toLocaleDateString('pt-BR', { weekday: 'short', day: '2-digit', month: '2-digit' }).toUpperCase();
+}
 
 console.log("%c>>> ACESSO NÃO AUTORIZADO! <<<", "color: red; font-size: 20px; font-weight: bold;");
 console.log("%cOra, ora... parece que temos um curioso no código-fonte. Já que chegou até aqui, aproveite a vista e lembre-se: Eu pensei em tudo 🙃", "color: #06b6d4; font-size: 14px;");
@@ -176,6 +214,7 @@ async function init() {
         renderQuests(data);
         updateDashboard(data);
         updateTeamStatus();
+        renderDailyDirective();
     }
 }
 
@@ -627,6 +666,26 @@ async function submitDiario() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ player_name: playerName })
         });
+    }
+
+    // Lógica para Condecorações Secretas no envio do Diário
+    const checkAndAwardSecret = async (questName, triggerReason) => {
+        // Envia silenciosamente para o backend. Se o usuário já tiver, o backend ignora a duplicata.
+        await fetch('/api/side-quest', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                player_name: playerName,
+                quest_name: questName,
+                delivery_text: triggerReason
+            })
+        });
+    };
+
+    if (activity.length > 200 || learned.length > 200) {
+        await checkAndAwardSecret('O Tagarela 📜', 'Desbloqueado por escrever mais de 200 caracteres no relatório!');
+    } else if (activity.length < 15 && learned.length < 15) {
+        await checkAndAwardSecret('O Minimalista 🤏', 'Desbloqueado por economizar caracteres no relatório!');
     }
 
     closeDiario();
