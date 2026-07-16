@@ -158,6 +158,10 @@ def get_team_status():
                                     completed = max_level
                     except:
                         pass
+            
+            if completed > max_level:
+                completed = max_level
+                
             team.append({"name": "Lina" if name == "Carol" else name, "level": state.get("current_level", 1), "completed": completed, "max_level": max_level, "side_quests": state.get("side_quests_completed", [])})
     return {"team": team}
 
