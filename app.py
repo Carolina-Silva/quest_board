@@ -115,6 +115,10 @@ def get_player_state(player_name: str, data: dict = None) -> dict:
 def get_status(player_name: str = None):
     if not player_name:
         raise HTTPException(status_code=400, detail="player_name is required")
+        
+    if player_name == "Lina":
+        player_name = "Carol"
+        
     data = load_all_data()
     if player_name not in data:
         raise HTTPException(status_code=404, detail="Player not found")
@@ -136,7 +140,7 @@ def get_team_status():
     data = load_all_data()
     team = []
     for name, state in data.items():
-        if name != "Carol" and state.get("mission_accepted", False):
+        if state.get("mission_accepted", False):
             player_quests_file = f"data/quests_{name}.json"
             max_level = 3
             completed = state.get("current_level", 1) - 1
@@ -154,7 +158,7 @@ def get_team_status():
                                     completed = max_level
                     except:
                         pass
-            team.append({"name": name, "level": state.get("current_level", 1), "completed": completed, "max_level": max_level, "side_quests": state.get("side_quests_completed", [])})
+            team.append({"name": "Lina" if name == "Carol" else name, "level": state.get("current_level", 1), "completed": completed, "max_level": max_level, "side_quests": state.get("side_quests_completed", [])})
     return {"team": team}
 
 @app.post("/api/accept-mission")

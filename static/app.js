@@ -63,6 +63,12 @@ const BADGE_CONFIG = {
         colorGlow: '0 0 22px rgba(239,68,68,0.55), inset 0 0 14px rgba(239,68,68,0.12)',
         colorTitle: '#fca5a5', colorTagline: '#ef444470', rarityColor: '#ef4444', rarityBg: 'rgba(127,29,29,0.7)',
     },
+    'Férias Merecidas 🏖️': {
+        icon: '🏖️', title: 'DESCANSANDO', tagline: 'Trabalhou sem férias por 3 anos',
+        rarity: 'MÍTICO', colorBorder: '#facc15', colorBg: 'rgba(250,204,21,0.12)',
+        colorGlow: '0 0 22px rgba(250,204,21,0.55), inset 0 0 14px rgba(250,204,21,0.12)',
+        colorTitle: '#fef08a', colorTagline: '#facc1570', rarityColor: '#facc15', rarityBg: 'rgba(113,63,18,0.7)',
+    },
 };
 
 function getPlayerName() {
@@ -690,6 +696,38 @@ async function selectAdminPlayer(name, pState) {
     document.getElementById('admin-detail-progress-percent').innerText = `${pct}%`;
     document.getElementById('admin-detail-progress-bar').style.width = `${pct}%`;
 
+    // Render Admin Badges
+    const adminBadgesContainer = document.getElementById('admin-detail-badges');
+    if (adminBadgesContainer) {
+        const hexClip = 'polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%)';
+        let badgesHtml = `
+            <div style="width:100%;display:flex;align-items:center;margin-bottom:12px;">
+                <span style="font-size:14px;color:#d946ef;font-family:monospace;text-transform:uppercase;letter-spacing:0.15em;">🏅 Condecorações Recebidas</span>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:16px;width:100%;">
+        `;
+        if (pState.side_quests_completed.length === 0) {
+            badgesHtml += `<p style="font-style:italic;color:#64748b;font-size:0.75rem;text-transform:uppercase;letter-spacing:0.1em;">Nenhuma condecoração recebida.</p>`;
+        } else {
+            pState.side_quests_completed.forEach(sq => {
+                const cfg = BADGE_CONFIG[sq];
+                if (cfg) {
+                    badgesHtml += `
+                        <div class="badge-card" style="display:flex;flex-direction:column;align-items:center;gap:8px;width:120px;cursor:default;" title="${sq}">
+                            <div class="badge-icon-container" style="width:100px;height:100px;clip-path:${hexClip};background:${cfg.colorBg};display:flex;align-items:center;justify-content:center;box-shadow:${cfg.colorGlow};outline:3px solid ${cfg.colorBorder};outline-offset:-3px;">
+                                <span style="font-size:42px;line-height:1;">${cfg.icon}</span>
+                            </div>
+                            <span style="font-size:12px;font-family:monospace;font-weight:bold;letter-spacing:0.12em;text-transform:uppercase;color:${cfg.colorTitle};text-align:center;line-height:1.2;">${cfg.title}</span>
+                            <span style="font-size:10px;font-family:monospace;color:${cfg.colorTagline};text-align:center;line-height:1.3;">${cfg.tagline}</span>
+                        </div>
+                    `;
+                }
+            });
+        }
+        badgesHtml += `</div>`;
+        adminBadgesContainer.innerHTML = badgesHtml;
+    }
+
     // Achievements
     const achievementsContainer = document.getElementById('admin-detail-achievements');
     achievementsContainer.innerHTML = '';
@@ -764,7 +802,17 @@ async function updateTeamStatus() {
         let maxLevelsPossible = 0;
 
         if (globalTeamData.length === 0) {
-            container.innerHTML = `<p style="grid-column:1/-1;font-size:14px;color:#64748b;font-family:monospace;text-transform:uppercase;">Esquadrão vazio.</p>`;
+            container.innerHTML = `
+                <p style="
+                    grid-column:1/-1;
+                    width:100%;
+                    font-size:14px;
+                    color:#64748b;
+                    font-family:monospace;
+                    text-transform:uppercase;
+                ">
+                    Esquadrão vazio.
+                </p>`;
             return;
         }
 
@@ -1068,7 +1116,28 @@ async function spyOnPlayer(targetName) {
         document.getElementById('modal-spy-title').innerText = `ALVO: AGENTE ${targetName}`;
 
         const logContainer = document.getElementById('modal-spy-log');
-        if (state.diario_logs && state.diario_logs.length > 0) {
+        if (targetName === 'Lina' || targetName === 'Carol') {
+            const funLogs = [
+                "[ MODO FÉRIAS ATIVADO ] Dormindo profundamente até as 10h da manhã... Zzz...",
+                "[ MODO FÉRIAS ATIVADO ] Tomando um solzinho e lendo um livro muito bom ☀️📚",
+                "[ MODO FÉRIAS ATIVADO ] Brincando com o gato, não perturbe! 🐈",
+                "[ MODO FÉRIAS ATIVADO ] O cérebro está em manutenção. Tente novamente após as férias 🔧",
+                "[ MODO FÉRIAS ATIVADO ] Executando script: descansar.py 🐍",
+                "[ MODO FÉRIAS ATIVADO ] IA indisponível. Operadora humana curtindo a vida 🤖",
+                "[ MODO FÉRIAS ATIVADO ] Trabalhando duro para não fazer absolutamente nada 🏖️",
+                "[ MODO FÉRIAS ATIVADO ] Fazendo turismo entre a cama, o sofá e a geladeira 🚶",
+                "[ MODO FÉRIAS ATIVADO ] Fora do escritório. Dentro das cobertas. Prioridades. 🛌",
+                "[ MODO FÉRIAS ATIVADO ] Fazendo nada. E fazendo muito bem. 🏅",
+                "[ MODO FÉRIAS ATIVADO ] Estou vendo você espiando minhas férias 👀",
+            ];
+            const randomLog = funLogs[Math.floor(Math.random() * funLogs.length)];
+            const now = new Date();
+            const timeStr = now.toLocaleDateString('pt-BR') + ' ' + now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            logContainer.innerHTML = `
+                <div style="color: #ef4444; font-weight: bold; margin-bottom: 8px;">[${timeStr}] STATUS: SUPERVISÃO</div>
+                <div>${randomLog}</div>
+            `;
+        } else if (state.diario_logs && state.diario_logs.length > 0) {
             const lastLog = state.diario_logs[state.diario_logs.length - 1];
             logContainer.innerHTML = `
                 <div style="color: #ef4444; font-weight: bold; margin-bottom: 8px;">[${lastLog.timestamp}] ${lastLog.level_name}</div>
