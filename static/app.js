@@ -63,8 +63,8 @@ const BADGE_CONFIG = {
         colorGlow: '0 0 22px rgba(239,68,68,0.55), inset 0 0 14px rgba(239,68,68,0.12)',
         colorTitle: '#fca5a5', colorTagline: '#ef444470', rarityColor: '#ef4444', rarityBg: 'rgba(127,29,29,0.7)',
     },
-    'Férias Merecidas 🏖️': {
-        icon: '🏖️', title: 'DESCANSANDO', tagline: 'Trabalhou sem férias por 3 anos',
+    'Finalmente Férias 🏖️': {
+        icon: '🏖️', title: 'Férias Merecidas', tagline: 'Trabalhou sem férias por 3 anos',
         rarity: 'MÍTICO', colorBorder: '#facc15', colorBg: 'rgba(250,204,21,0.12)',
         colorGlow: '0 0 22px rgba(250,204,21,0.55), inset 0 0 14px rgba(250,204,21,0.12)',
         colorTitle: '#fef08a', colorTagline: '#facc1570', rarityColor: '#facc15', rarityBg: 'rgba(113,63,18,0.7)',
@@ -269,7 +269,7 @@ function renderQuests(data) {
 
 function updateDashboard(data) {
     const currentLevel = data.current_level;
-    document.getElementById('player-level').innerText = `LVL 0${currentLevel}`;
+    document.getElementById('player-level').innerText = `LVL ${currentLevel}`;
 
     const totalMainQuests = questsConfig.main_quests ? questsConfig.main_quests.length : 3;
     let completedQuests = currentLevel - 1;
@@ -411,11 +411,11 @@ function updateDashboard(data) {
         // Add secret quests that the player has earned, but are not in the config
         const configQuestNames = allSideQuests.map(q => q.name);
         const secretQuests = data.side_quests_completed.filter(sq => !configQuestNames.includes(sq));
-        
+
         secretQuests.forEach(sq => {
             const cfg = BADGE_CONFIG[sq];
             if (!cfg) return;
-            
+
             badgesHtml += `
                 <div class="badge-card" style="display:flex;flex-direction:column;align-items:center;gap:8px;width:140px;cursor:default;" title="${sq}">
                     <div class="badge-icon-container" style="width:140px;height:140px;clip-path:${hexClip};background:${cfg.colorBg};display:flex;align-items:center;justify-content:center;box-shadow:${cfg.colorGlow};outline:3px solid ${cfg.colorBorder};outline-offset:-3px;">
@@ -837,9 +837,11 @@ async function updateTeamStatus() {
         }
 
         globalTeamData.forEach(player => {
-            totalCompleted += player.completed || 0;
-            maxLevelsPossible += player.max_level || 3;
-            const isMe = player.name === getPlayerName();
+            if (player.name !== 'Lina' && player.name !== 'Carol') {
+                totalCompleted += player.completed || 0;
+                maxLevelsPossible += player.max_level || 3;
+            }
+            const isMe = player.name === getPlayerName() || (player.name === 'Lina' && getPlayerName() === 'Carol');
             const borderColor = isMe ? '1px solid rgba(6,182,212,0.5)' : '1px solid #1e293b';
             const boxShadow = isMe ? '0 0 8px rgba(34,211,238,0.2)' : 'none';
             const opacity = isMe ? '1' : '0.8';
@@ -856,7 +858,7 @@ async function updateTeamStatus() {
                     </span>
                     <div style="display:flex; gap: 8px; align-items:center;">
                         ${spyBtn}
-                        <span style="font-size:16px;padding:2px 4px;border:1px solid ${lvlBorder};background:${lvlBg};color:${lvlColor};">LVL 0${player.level}</span>
+                        <span style="font-size:16px;padding:2px 4px;border:1px solid ${lvlBorder};background:${lvlBg};color:${lvlColor};">LVL ${player.level}</span>
                     </div>
                 </div>
             `;
