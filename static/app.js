@@ -645,7 +645,7 @@ async function renderAdminDashboard() {
     const playersList = document.getElementById('admin-players-list');
     playersList.innerHTML = '';
 
-    const playerNames = Object.keys(allData).filter(name => name !== 'Carol');
+    const playerNames = Object.keys(allData);
 
     if (playerNames.length === 0) {
         playersList.innerHTML = `<p style="font-style:italic;color:#64748b;text-align:center;padding:16px 0;font-size:0.75rem;font-family:monospace;text-transform:uppercase;letter-spacing:0.2em;">Nenhum agente ativo no momento.</p>`;
