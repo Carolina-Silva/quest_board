@@ -2,6 +2,7 @@ let activeMissionName = "";
 let activeMissionId = 0;
 let globalCurrentLevel = 0;
 let globalPlayerLogs = [];
+let globalCompletedSideQuests = [];
 let activeSideQuestName = "";
 let questsConfig = { main_quests: [], side_quests: [] };
 
@@ -208,6 +209,7 @@ async function init() {
     } else {
         globalCurrentLevel = data.current_level;
         globalPlayerLogs = data.diario_logs;
+        globalCompletedSideQuests = data.side_quests_completed || [];
         if (mainBoard) mainBoard.classList.remove('hidden');
         document.getElementById('board-title').innerText = `OPERADOR: ${data.player_name}`;
 
@@ -688,16 +690,19 @@ async function submitDiario() {
 
     // Lógica para Condecorações Secretas no envio do Diário
     const checkAndAwardSecret = async (questName, triggerReason) => {
-        // Envia silenciosamente para o backend. Se o usuário já tiver, o backend ignora a duplicata.
-        await fetch('/api/side-quest', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                player_name: playerName,
-                quest_name: questName,
-                delivery_text: triggerReason
-            })
-        });
+        if (!globalCompletedSideQuests.includes(questName)) {
+            await fetch('/api/side-quest', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    player_name: playerName,
+                    quest_name: questName,
+                    delivery_text: triggerReason
+                })
+            });
+            showAchievementUnlocked(questName);
+            globalCompletedSideQuests.push(questName);
+        }
     };
 
     if (activity.length > 200 || learned.length > 200) {
