@@ -69,6 +69,24 @@ const BADGE_CONFIG = {
         colorGlow: '0 0 22px rgba(250,204,21,0.55), inset 0 0 14px rgba(250,204,21,0.12)',
         colorTitle: '#fef08a', colorTagline: '#facc1570', rarityColor: '#facc15', rarityBg: 'rgba(113,63,18,0.7)',
     },
+    'Curiosidade Matou o Gato 🐈': {
+        icon: '🐈', title: 'CURIOSO', tagline: 'Apertou o botão proibido',
+        rarity: 'SECRETO', colorBorder: '#fb923c', colorBg: 'rgba(251,146,60,0.12)',
+        colorGlow: '0 0 22px rgba(251,146,60,0.55), inset 0 0 14px rgba(251,146,60,0.12)',
+        colorTitle: '#fed7aa', colorTagline: '#fb923c70', rarityColor: '#fb923c', rarityBg: 'rgba(124,45,18,0.7)',
+    },
+    'Rebelde Sem Causa 🏴‍☠️': {
+        icon: '🏴‍☠️', title: 'REBELDE', tagline: 'Disse NÃO para o sistema',
+        rarity: 'SECRETO', colorBorder: '#3f3f46', colorBg: 'rgba(63,63,70,0.12)',
+        colorGlow: '0 0 22px rgba(63,63,70,0.55), inset 0 0 14px rgba(63,63,70,0.12)',
+        colorTitle: '#d4d4d8', colorTagline: '#a1a1aa', rarityColor: '#a1a1aa', rarityBg: 'rgba(39,39,42,0.7)',
+    },
+    'O Narcisista 🪞': {
+        icon: '🪞', title: 'NARCISISTA', tagline: 'Admirando o próprio crachá',
+        rarity: 'SECRETO', colorBorder: '#ec4899', colorBg: 'rgba(236,72,153,0.12)',
+        colorGlow: '0 0 22px rgba(236,72,153,0.55), inset 0 0 14px rgba(236,72,153,0.12)',
+        colorTitle: '#fbcfe8', colorTagline: '#f472b6', rarityColor: '#ec4899', rarityBg: 'rgba(131,24,67,0.7)',
+    },
 };
 
 function getPlayerName() {
@@ -87,6 +105,9 @@ function logout() {
 }
 
 let feedInterval = null;
+
+console.log("%c>>> ACESSO NÃO AUTORIZADO! <<<", "color: red; font-size: 20px; font-weight: bold;");
+console.log("%cOra, ora... parece que temos um curioso no código-fonte. Já que chegou até aqui, aproveite a vista e lembre-se: Eu pensei em tudo 🙃", "color: #06b6d4; font-size: 14px;");
 
 async function init() {
     if (!feedInterval) {
@@ -144,6 +165,19 @@ async function acceptMission() {
     const name = document.getElementById('player-name-input').value.trim();
     if (!name) {
         alert('Por favor, insira seu codinome antes de entrar.');
+        return;
+    }
+
+    const forbiddenNames = ['admin', 'root', 'deus', 'hacker', 'system', 'superuser'];
+    if (forbiddenNames.includes(name.toLowerCase())) {
+        const body = document.body;
+        body.style.animation = "glitch-anim 0.3s infinite";
+        body.style.backgroundColor = "#7f1d1d";
+        setTimeout(() => {
+            body.style.animation = "";
+            body.style.backgroundColor = "#020617";
+            alert("ACESSO NEGADO: A SUPERVISÃO FOI NOTIFICADA DA SUA TENTATIVA DE INVASÃO.");
+        }, 1000);
         return;
     }
 
@@ -1115,8 +1149,8 @@ function acceptFinalMission() {
     closeCredits();
 }
 
-function rejectFinalMission() {
-    fetch('/api/feed-event', {
+async function rejectFinalMission() {
+    await fetch('/api/feed-event', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -1125,8 +1159,19 @@ function rejectFinalMission() {
             type: 'core_done'
         })
     });
+    await fetch('/api/side-quest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            player_name: getPlayerName(),
+            quest_name: 'Rebelde Sem Causa 🏴‍☠️',
+            delivery_text: 'Teve a audácia de recusar a missão final do sistema.'
+        })
+    });
     alert('Missão Final Recusada. Fim da linha... ou não?');
     closeCredits();
+    showAchievementUnlocked('Rebelde Sem Causa 🏴‍☠️');
+    init();
 }
 
 async function spyOnPlayer(targetName) {
@@ -1199,7 +1244,8 @@ async function spyOnPlayer(targetName) {
             })
         });
 
-        const me = globalTeamData.find(p => p.name === getPlayerName());
+        const meName = getPlayerName() === 'Carol' ? 'Lina' : getPlayerName();
+        const me = globalTeamData.find(p => p.name === meName);
         if (me && (!me.side_quests || !me.side_quests.includes('Bisbilhoteiro Profissional 👀'))) {
             fetch('/api/side-quest', {
                 method: 'POST',
@@ -1210,8 +1256,8 @@ async function spyOnPlayer(targetName) {
                     delivery_text: 'Descoberta secreta: invadiu o terminal de um colega.'
                 })
             }).then(() => {
-                // Forçar atualização silenciosa
-                updateTeamStatus();
+                showAchievementUnlocked('Bisbilhoteiro Profissional 👀');
+                init();
             });
         }
 
@@ -1225,3 +1271,85 @@ function closeSpyModal() {
 }
 
 window.onload = init;
+
+let countdownInterval = null;
+function triggerDoNotClick() {
+    if (countdownInterval) return;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'do-not-click-overlay';
+    overlay.style.position = 'fixed';
+    overlay.style.top = '0'; overlay.style.left = '0';
+    overlay.style.width = '100vw'; overlay.style.height = '100vh';
+    overlay.style.backgroundColor = 'rgba(255, 0, 0, 0.9)';
+    overlay.style.zIndex = '9999';
+    overlay.style.display = 'flex';
+    overlay.style.flexDirection = 'column';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+    overlay.style.color = 'white';
+    overlay.style.fontFamily = 'monospace';
+
+    overlay.innerHTML = `
+        <h1 style="font-size: 3rem; animation: pulse 0.5s infinite; text-align: center;">AUTODESTRUIÇÃO INICIADA</h1>
+        <h2 id="dnc-countdown" style="font-size: 8rem; margin: 20px 0;">5</h2>
+        <p style="font-size: 1.5rem;">Por que você clicou?!</p>
+    `;
+    document.body.appendChild(overlay);
+
+    let count = 5;
+    countdownInterval = setInterval(async () => {
+        count--;
+        if (count > 0) {
+            document.getElementById('dnc-countdown').innerText = count;
+        } else {
+            clearInterval(countdownInterval);
+            countdownInterval = null;
+            document.body.removeChild(overlay);
+
+            await fetch('/api/side-quest', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    player_name: getPlayerName(),
+                    quest_name: 'Curiosidade Matou o Gato 🐈',
+                    delivery_text: 'Eu cliquei no botão proibido e quase destruí a base.'
+                })
+            });
+            alert("Brincadeira! Mas o aviso estava claro. Pelo menos você ganhou algo com isso.");
+            showAchievementUnlocked('Curiosidade Matou o Gato 🐈');
+            init();
+        }
+    }, 1000);
+}
+
+let titleClickCount = 0;
+let titleClickTimer = null;
+
+function handleTitleClick() {
+    titleClickCount++;
+    if (titleClickTimer) clearTimeout(titleClickTimer);
+    
+    titleClickTimer = setTimeout(() => {
+        titleClickCount = 0;
+    }, 2000);
+    
+    if (titleClickCount >= 5) {
+        titleClickCount = 0;
+        grantNarcisistaBadge();
+    }
+}
+
+async function grantNarcisistaBadge() {
+    await fetch('/api/side-quest', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            player_name: getPlayerName(),
+            quest_name: 'O Narcisista 🪞',
+            delivery_text: 'Admirou o próprio crachá repetidas vezes.'
+        })
+    });
+    showAchievementUnlocked('O Narcisista 🪞');
+    init();
+}
