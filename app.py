@@ -154,7 +154,7 @@ def get_team_status():
                                     completed = max_level
                     except:
                         pass
-            team.append({"name": name, "level": state.get("current_level", 1), "completed": completed, "max_level": max_level})
+            team.append({"name": name, "level": state.get("current_level", 1), "completed": completed, "max_level": max_level, "side_quests": state.get("side_quests_completed", [])})
     return {"team": team}
 
 @app.post("/api/accept-mission")

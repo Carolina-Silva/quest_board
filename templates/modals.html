@@ -23,16 +23,19 @@
                         placeholder="Descreva os passos e a atividade que executou..."></textarea>
                 </div>
                 <div>
-                    <label class="modal-label modal-label-cyan">>> Relatório de Inteligência (O que aprendi com essa missão)</label>
+                    <label class="modal-label modal-label-cyan">>> Relatório de Inteligência (O que aprendi com essa
+                        missão)</label>
                     <textarea id="form-learned" class="modal-textarea" style="height:64px;"></textarea>
                 </div>
                 <div>
-                    <label class="modal-label modal-label-cyan">>> Anomalias Detectadas (Onde ainda tenho dúvidas)</label>
+                    <label class="modal-label modal-label-cyan">>> Anomalias Detectadas (Onde ainda tenho
+                        dúvidas)</label>
                     <textarea id="form-not-understood" class="modal-textarea"
                         style="height:64px;border-color:#164e63;"></textarea>
                 </div>
                 <div>
-                    <label class="modal-label modal-label-cyan">>> Vetores de Expansão (O que quero ainda quero aprender sobre)</label>
+                    <label class="modal-label modal-label-cyan">>> Vetores de Expansão (O que quero ainda quero aprender
+                        sobre)</label>
                     <textarea id="form-explore-more" class="modal-textarea"
                         style="height:64px;border-color:#164e63;"></textarea>
                 </div>
@@ -103,8 +106,43 @@
             <!-- Renderizado via JS -->
         </div>
         <div class="modal-footer">
-            <button onclick="closeAdminLogModal()" class="btn-modal-cancel" style="margin-left:auto;">Fechar Leitura</button>
-            <button id="modal-admin-log-btn" onclick="closeAdminLogModal()" class="btn-modal-submit btn-modal-submit-cyan" style="display:none;">OK</button>
+            <button onclick="closeAdminLogModal()" class="btn-modal-cancel" style="margin-left:auto;">Fechar
+                Leitura</button>
+            <button id="modal-admin-log-btn" onclick="closeAdminLogModal()"
+                class="btn-modal-submit btn-modal-submit-cyan" style="display:none;">OK</button>
+        </div>
+    </div>
+</div>
+
+<!-- Credits Overlay -->
+<div id="credits-overlay" class="credits-overlay hidden">
+    <div class="credits-scroll-container">
+        <div id="credits-content" class="credits-content">
+            <h1 class="credits-title neon-text-cyan glitch-hover">SISTEMA PRINCIPAL RESTAURADO</h1>
+            <p class="credits-subtitle" style="margin-bottom: 48px;">O ESQUADRÃO DE ELITE CONCLUIU A SUA MISSÃO</p>
+
+            <div id="credits-team-list" class="credits-team-list">
+                <!-- Preenchido via JS -->
+            </div>
+
+            <div style="height: 100px;"></div>
+
+            <div class="final-boss-panel neon-box-fuchsia">
+                <h2 class="final-boss-title">ALERTA DE MISSÃO NÍVEL S</h2>
+                <h3 class="final-boss-name">MISSÃO FINAL</h3>
+                <p class="final-boss-desc">
+                    Dia 24/07. A supervisão estará voltando para ter essa missão junto com a equipe!<br><br>
+                </p>
+                <div class="final-boss-buttons">
+                    <button onclick="rejectFinalMission()" class="btn-boss-reject">Recusar</button>
+                    <button onclick="acceptFinalMission()" class="btn-boss-accept">Aceitar Missão</button>
+                </div>
+            </div>
+
+            <div style="height: 50vh;"></div>
+            <p style="text-align: center; color: #64748b; font-size: 14px; margin-top: 48px; padding-bottom: 48px;">
+                <button onclick="closeCredits()" class="btn-modal-cancel" style="max-width: 200px;">Sair</button>
+            </p>
         </div>
     </div>
 </div>

@@ -1,4 +1,4 @@
-# 🎮 Quest Board - Incolagenn
+# 🎮 Quest Board
 
 Um sistema de missões gamificado (estilo cyberpunk/retro) desenhado para o onboarding, acompanhamento e engajamento da equipe. Os operadores completam "Missões Principais", enviam relatórios e desbloqueiam "Conquistas Opcionais" visíveis no Feed Global.
 

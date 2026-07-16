@@ -5,6 +5,60 @@ let globalPlayerLogs = [];
 let activeSideQuestName = "";
 let questsConfig = { main_quests: [], side_quests: [] };
 
+let globalTeamData = [];
+
+// ── Badge Config ────────────────────────────────────────────
+const BADGE_CONFIG = {
+    'Conheça uma tecnologia nova 📚': {
+        icon: '🔬', title: 'TECH EXPLORER', tagline: 'Mergulhou fundo em uma tecnologia',
+        rarity: 'RARO', colorBorder: '#38bdf8', colorBg: 'rgba(14,165,233,0.12)',
+        colorGlow: '0 0 22px rgba(56,189,248,0.55), inset 0 0 14px rgba(56,189,248,0.12)',
+        colorTitle: '#7dd3fc', colorTagline: '#38bdf870', rarityColor: '#38bdf8', rarityBg: 'rgba(12,74,110,0.7)',
+    },
+    'A Ideia Maluca 💡': {
+        icon: '⚡', title: 'INOVADORA', tagline: 'Propôs uma feature que muda tudo',
+        rarity: 'ÉPICO', colorBorder: '#fbbf24', colorBg: 'rgba(245,158,11,0.12)',
+        colorGlow: '0 0 22px rgba(251,191,36,0.55), inset 0 0 14px rgba(251,191,36,0.12)',
+        colorTitle: '#fde68a', colorTagline: '#fbbf2470', rarityColor: '#fbbf24', rarityBg: 'rgba(78,45,0,0.7)',
+    },
+    'Caça aos detalhes 🎨': {
+        icon: '🎯', title: 'OLHO DE ÁGUIA', tagline: 'Detectou o que ninguém mais viu',
+        rarity: 'LENDÁRIO', colorBorder: '#e879f9', colorBg: 'rgba(217,70,239,0.12)',
+        colorGlow: '0 0 22px rgba(232,121,249,0.55), inset 0 0 14px rgba(232,121,249,0.12)',
+        colorTitle: '#f0abfc', colorTagline: '#e879f970', rarityColor: '#e879f9', rarityBg: 'rgba(74,4,78,0.7)',
+    },
+    'Repatriação de Artefato 📖': {
+        icon: '📖', title: 'ARQUEÓLOGO', tagline: 'Resgatou um artefato perdido',
+        rarity: 'INCOMUM', colorBorder: '#6366f1', colorBg: 'rgba(99,102,241,0.12)',
+        colorGlow: '0 0 22px rgba(99,102,241,0.55), inset 0 0 14px rgba(99,102,241,0.12)',
+        colorTitle: '#a5b4fc', colorTagline: '#6366f170', rarityColor: '#6366f1', rarityBg: 'rgba(49,46,129,0.7)',
+    },
+    'Reconhecimento de Arquivo 📸': {
+        icon: '📸', title: 'ARQUIVISTA', tagline: 'Documentou o arquivo central',
+        rarity: 'RARO', colorBorder: '#10b981', colorBg: 'rgba(16,185,129,0.12)',
+        colorGlow: '0 0 22px rgba(16,185,129,0.55), inset 0 0 14px rgba(16,185,129,0.12)',
+        colorTitle: '#6ee7b7', colorTagline: '#10b98170', rarityColor: '#10b981', rarityBg: 'rgba(6,78,59,0.7)',
+    },
+    'Reconhecimento de Perímetro Externo ☀️': {
+        icon: '☀️', title: 'ANDARILHO', tagline: 'Sobreviveu à radiação solar',
+        rarity: 'ÉPICO', colorBorder: '#f97316', colorBg: 'rgba(249,115,22,0.12)',
+        colorGlow: '0 0 22px rgba(249,115,22,0.55), inset 0 0 14px rgba(249,115,22,0.12)',
+        colorTitle: '#fdba74', colorTagline: '#f9731670', rarityColor: '#f97316', rarityBg: 'rgba(124,45,18,0.7)',
+    },
+    'Transmissão de Código de Conduta 👍': {
+        icon: '👍', title: 'É ISSO JOVEM', tagline: 'Validou o código com sucesso',
+        rarity: 'LENDÁRIO', colorBorder: '#f43f5e', colorBg: 'rgba(244,63,94,0.12)',
+        colorGlow: '0 0 22px rgba(244,63,94,0.55), inset 0 0 14px rgba(244,63,94,0.12)',
+        colorTitle: '#fda4af', colorTagline: '#f43f5e70', rarityColor: '#f43f5e', rarityBg: 'rgba(136,19,55,0.7)',
+    },
+    'Projeto Paralelo: Operação Sirius 🌌': {
+        icon: '🌌', title: 'COMANDANTE', tagline: 'Executou a Operação Sirius',
+        rarity: 'MÍTICO', colorBorder: '#a855f7', colorBg: 'rgba(168,85,247,0.12)',
+        colorGlow: '0 0 22px rgba(168,85,247,0.55), inset 0 0 14px rgba(168,85,247,0.12)',
+        colorTitle: '#d8b4fe', colorTagline: '#a855f770', rarityColor: '#a855f7', rarityBg: 'rgba(88,28,135,0.7)',
+    },
+};
+
 function getPlayerName() {
     return localStorage.getItem('player_name');
 }
@@ -220,14 +274,14 @@ function updateDashboard(data) {
 
     const progressBar = document.getElementById('progress-bar');
     const myGoalText = document.getElementById('my-goal-text');
-    
+
     const earnedCountForPlat = data.side_quests_completed.length;
     const totalBadgesForPlat = questsConfig.side_quests ? questsConfig.side_quests.length : 3;
     const isMainCompleted = progressPercentage === 100;
     const isPlatinado = isMainCompleted && (earnedCountForPlat >= totalBadgesForPlat);
 
     if (progressBar) progressBar.style.width = `${progressPercentage}%`;
-    
+
     let platMsgEl = document.getElementById('platina-message-dynamic');
     if (!platMsgEl && progressBar) {
         platMsgEl = document.createElement('div');
@@ -294,58 +348,6 @@ function updateDashboard(data) {
             if (platMsgEl) platMsgEl.innerHTML = '';
         }
     }
-
-    // ── Badge Config ────────────────────────────────────────────
-    const BADGE_CONFIG = {
-        'Conheça uma tecnologia nova 📚': {
-            icon: '🔬', title: 'TECH EXPLORER', tagline: 'Mergulhou fundo em uma tecnologia',
-            rarity: 'RARO', colorBorder: '#38bdf8', colorBg: 'rgba(14,165,233,0.12)',
-            colorGlow: '0 0 22px rgba(56,189,248,0.55), inset 0 0 14px rgba(56,189,248,0.12)',
-            colorTitle: '#7dd3fc', colorTagline: '#38bdf870', rarityColor: '#38bdf8', rarityBg: 'rgba(12,74,110,0.7)',
-        },
-        'A Ideia Maluca 💡': {
-            icon: '⚡', title: 'INOVADORA', tagline: 'Propôs uma feature que muda tudo',
-            rarity: 'ÉPICO', colorBorder: '#fbbf24', colorBg: 'rgba(245,158,11,0.12)',
-            colorGlow: '0 0 22px rgba(251,191,36,0.55), inset 0 0 14px rgba(251,191,36,0.12)',
-            colorTitle: '#fde68a', colorTagline: '#fbbf2470', rarityColor: '#fbbf24', rarityBg: 'rgba(78,45,0,0.7)',
-        },
-        'Caça aos detalhes 🎨': {
-            icon: '🎯', title: 'OLHO DE ÁGUIA', tagline: 'Detectou o que ninguém mais viu',
-            rarity: 'LENDÁRIO', colorBorder: '#e879f9', colorBg: 'rgba(217,70,239,0.12)',
-            colorGlow: '0 0 22px rgba(232,121,249,0.55), inset 0 0 14px rgba(232,121,249,0.12)',
-            colorTitle: '#f0abfc', colorTagline: '#e879f970', rarityColor: '#e879f9', rarityBg: 'rgba(74,4,78,0.7)',
-        },
-        'Repatriação de Artefato 📖': {
-            icon: '📖', title: 'ARQUEÓLOGO', tagline: 'Resgatou um artefato perdido',
-            rarity: 'INCOMUM', colorBorder: '#6366f1', colorBg: 'rgba(99,102,241,0.12)',
-            colorGlow: '0 0 22px rgba(99,102,241,0.55), inset 0 0 14px rgba(99,102,241,0.12)',
-            colorTitle: '#a5b4fc', colorTagline: '#6366f170', rarityColor: '#6366f1', rarityBg: 'rgba(49,46,129,0.7)',
-        },
-        'Reconhecimento de Arquivo 📸': {
-            icon: '📸', title: 'ARQUIVISTA', tagline: 'Documentou o arquivo central',
-            rarity: 'RARO', colorBorder: '#10b981', colorBg: 'rgba(16,185,129,0.12)',
-            colorGlow: '0 0 22px rgba(16,185,129,0.55), inset 0 0 14px rgba(16,185,129,0.12)',
-            colorTitle: '#6ee7b7', colorTagline: '#10b98170', rarityColor: '#10b981', rarityBg: 'rgba(6,78,59,0.7)',
-        },
-        'Reconhecimento de Perímetro Externo ☀️': {
-            icon: '☀️', title: 'ANDARILHO', tagline: 'Sobreviveu à radiação solar',
-            rarity: 'ÉPICO', colorBorder: '#f97316', colorBg: 'rgba(249,115,22,0.12)',
-            colorGlow: '0 0 22px rgba(249,115,22,0.55), inset 0 0 14px rgba(249,115,22,0.12)',
-            colorTitle: '#fdba74', colorTagline: '#f9731670', rarityColor: '#f97316', rarityBg: 'rgba(124,45,18,0.7)',
-        },
-        'Transmissão de Código de Conduta 👍': {
-            icon: '👍', title: 'É ISSO JOVEM', tagline: 'Validou o código com sucesso',
-            rarity: 'LENDÁRIO', colorBorder: '#f43f5e', colorBg: 'rgba(244,63,94,0.12)',
-            colorGlow: '0 0 22px rgba(244,63,94,0.55), inset 0 0 14px rgba(244,63,94,0.12)',
-            colorTitle: '#fda4af', colorTagline: '#f43f5e70', rarityColor: '#f43f5e', rarityBg: 'rgba(136,19,55,0.7)',
-        },
-        'Projeto Paralelo: Operação Sirius 🌌': {
-            icon: '🌌', title: 'COMANDANTE', tagline: 'Executou a Operação Sirius',
-            rarity: 'MÍTICO', colorBorder: '#a855f7', colorBg: 'rgba(168,85,247,0.12)',
-            colorGlow: '0 0 22px rgba(168,85,247,0.55), inset 0 0 14px rgba(168,85,247,0.12)',
-            colorTitle: '#d8b4fe', colorTagline: '#a855f770', rarityColor: '#a855f7', rarityBg: 'rgba(88,28,135,0.7)',
-        },
-    };
 
     // ── Render Badges ───────────────────────────────────────────
     const badgesContainer = document.getElementById('badges-container');
@@ -744,7 +746,7 @@ async function updateTeamStatus() {
         const res = await fetch('/api/team-status');
         if (!res.ok) return;
         const data = await res.json();
-        const team = data.team;
+        globalTeamData = data.team;
 
         const container = document.getElementById('team-players-list');
         if (!container) return;
@@ -753,12 +755,12 @@ async function updateTeamStatus() {
         let totalCompleted = 0;
         let maxLevelsPossible = 0;
 
-        if (team.length === 0) {
+        if (globalTeamData.length === 0) {
             container.innerHTML = `<p style="grid-column:1/-1;font-size:14px;color:#64748b;font-family:monospace;text-transform:uppercase;">Esquadrão vazio.</p>`;
             return;
         }
 
-        team.forEach(player => {
+        globalTeamData.forEach(player => {
             totalCompleted += player.completed || 0;
             maxLevelsPossible += player.max_level || 3;
             const isMe = player.name === getPlayerName();
@@ -950,22 +952,99 @@ function triggerConfettiEffect(type) {
             return Math.random() * (max - min) + min;
         }
 
-        const interval = setInterval(function() {
+        const interval = setInterval(function () {
             const timeLeft = animationEnd - Date.now();
             if (timeLeft <= 0) {
                 return clearInterval(interval);
             }
             const particleCount = 50 * (timeLeft / duration);
-            confetti(Object.assign({}, defaults, { particleCount,
+            confetti(Object.assign({}, defaults, {
+                particleCount,
                 origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
                 colors: ['#fbbf24', '#fde68a', '#d97706', '#22d3ee']
             }));
-            confetti(Object.assign({}, defaults, { particleCount,
+            confetti(Object.assign({}, defaults, {
+                particleCount,
                 origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
                 colors: ['#fbbf24', '#fde68a', '#d97706', '#22d3ee']
             }));
         }, 250);
     }
+}
+
+function showCredits() {
+    const listContainer = document.getElementById('credits-team-list');
+    listContainer.innerHTML = '';
+
+    globalTeamData.forEach(player => {
+        let badgesHtml = '';
+        if (player.side_quests && player.side_quests.length > 0) {
+            badgesHtml = `<div class="credits-badges-row">`;
+            player.side_quests.forEach(sq => {
+                const cfg = BADGE_CONFIG[sq];
+                if (cfg) {
+                    badgesHtml += `
+                        <div class="credits-badge">
+                            <span class="credits-badge-icon">${cfg.icon}</span>
+                            <span class="credits-badge-title">${cfg.title}</span>
+                        </div>
+                    `;
+                }
+            });
+            badgesHtml += `</div>`;
+        }
+
+        listContainer.innerHTML += `
+            <div class="credits-agent-block">
+                <div class="credits-agent-name">AGENTE: ${player.name}</div>
+                <div class="credits-agent-level">LEVEL 0${player.level} ALCANÇADO</div>
+                ${badgesHtml}
+            </div>
+        `;
+    });
+
+    const overlay = document.getElementById('credits-overlay');
+    const content = document.getElementById('credits-content');
+    overlay.classList.remove('hidden');
+
+    // Reset animation
+    content.classList.remove('credits-scroll-active');
+    void content.offsetWidth; // trigger reflow
+    content.classList.add('credits-scroll-active');
+}
+
+function closeCredits() {
+    const overlay = document.getElementById('credits-overlay');
+    overlay.classList.add('hidden');
+    document.getElementById('credits-content').classList.remove('credits-scroll-active');
+}
+
+function acceptFinalMission() {
+    fetch('/api/feed-event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            player_name: getPlayerName(),
+            action: 'ACEITOU A MISSÃO FINAL NÍVEL S! A comemoração vai acontecer!',
+            type: 'platinum'
+        })
+    });
+    alert('Missão Final Aceita com Sucesso! 🌟');
+    closeCredits();
+}
+
+function rejectFinalMission() {
+    fetch('/api/feed-event', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            player_name: getPlayerName(),
+            action: 'RECUSOU A MISSÃO FINAL... (Isso é sério?! 😱)',
+            type: 'core_done'
+        })
+    });
+    alert('Missão Final Recusada. Fim da linha... ou não?');
+    closeCredits();
 }
 
 window.onload = init;
